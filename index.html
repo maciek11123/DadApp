@@ -2623,7 +2623,7 @@ Rules:
 - Return ONLY the JSON. Nothing else.`;
 
     const requestBody = {
-      system_instruction: { parts: [{ text: systemPrompt }] },
+      systemInstruction: { parts: [{ text: systemPrompt }] },
       contents: [{
         parts: [
           { inline_data: { mime_type: geminiMime, data: audioData } },
@@ -3021,7 +3021,8 @@ async function fetchStoreHours(store) {
 
   try {
     // Use Places API Place Details (fields: opening_hours)
-    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${store.placeId}&fields=opening_hours,name&key=${PLACES_API_KEY}`;
+    const targetUrl = encodeURIComponent(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${store.placeId}&fields=opening_hours,name&key=${PLACES_API_KEY}`);
+    const url = `https://corsproxy.io/?${targetUrl}`;
     const res = await fetch(url);
     const data = await res.json();
 
@@ -3172,6 +3173,35 @@ function renderStores() {
 // GEMINI_API_KEY read at call time (DAD_CONFIG loaded async)
 function getGeminiKey() { return window.DAD_CONFIG?.GEMINI_API_KEY || ''; }
 const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+
+
+// ── EXPAND BRANCHES (Phase 9) ─────────────────────────────
+async function expandBranches(storeName) {
+  if (userLat === null) { showToast('LOCATE FIRST'); return; }
+  showToast('SEARCHING ' + storeName.toUpperCase() + '...');
+  const targetUrl = encodeURIComponent(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(storeName)}&location=${userLat},${userLng}&radius=50000&key=${PLACES_API_KEY}`);
+  const url = `https://corsproxy.io/?${targetUrl}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') throw new Error(data.status);
+    const existingIds = new Set(favoriteStores.map(s => s.placeId));
+    const newBranches = (data.results || []).filter(p => !existingIds.has(p.place_id));
+    if (!newBranches.length) { showToast('NO NEW BRANCHES FOUND'); return; }
+    newBranches.forEach(p => {
+      favoriteStores.push({
+        id: p.place_id, name: p.name, emoji: '📍',
+        address: p.formatted_address, placeId: p.place_id,
+        lat: p.geometry.location.lat, lng: p.geometry.location.lng,
+        keywords: [storeName.toLowerCase()]
+      });
+      detectedStoreIds.add(p.place_id);
+    });
+    renderStores();
+    showToast('+' + newBranches.length + ' BRANCHES FOUND');
+  } catch(err) { console.error(err); showToast('SEARCH ERROR'); }
+}
+window.expandBranches = expandBranches;
 
 // ── CAPACITOR BRIDGE ───────────────────────────────────────
 window.addEventListener('message', function(event) {
