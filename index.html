@@ -3005,7 +3005,8 @@ async function fetchStoreHours(store) {
 
   try {
     // Use Places API Place Details (fields: opening_hours)
-    const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${store.placeId}&fields=opening_hours,name&key=${PLACES_API_KEY}`;
+    const targetUrl = encodeURIComponent(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${store.placeId}&fields=opening_hours,name&key=${PLACES_API_KEY}`);
+    const url = `https://corsproxy.io/?${targetUrl}`;
     const res = await fetch(url);
     const data = await res.json();
 
