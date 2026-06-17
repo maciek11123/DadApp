@@ -49,53 +49,7 @@
     --fs-xl:  18px;
     --fs-2xl: 20px;
     --fs-3xl: 28px;
-    --fs-nav: 9px;
-  }
-
-  /* ── NIGHT THEME (Dark blue) ── */
-  [data-theme="night"] {
-    --yellow: #00D4FF;
-    --black:  #E0F7FF;
-    --white:  #16213E;
-    --blue:   #00D4FF;
-    --grey:   #0F3460;
-    --green:  #00FF87;
-    --shadow: 4px 4px 0px #00D4FF;
-    --border: 3px solid #00D4FF;
-
-    --bg:        #1A1A2E;
-    --bg-card:   #16213E;
-    --text:      #E0F7FF;
-    --text-dim:  rgba(224,247,255,0.5);
-    --text-muted:#90CAF9;
-    --accent:    #00D4FF;
-    --nav-bg:    #0D0D1A;
-    --nav-text:  #607D8B;
-    --nav-active:#00D4FF;
-    --input-bg:  #0F3460;
-  }
-
-  /* ── HIGH CONTRAST THEME (Black/White/Yellow) ── */
-  [data-theme="hico"] {
-    --yellow: #FFFF00;
-    --black:  #FFFFFF;
-    --white:  #000000;
-    --blue:   #FFFF00;
-    --grey:   #1A1A1A;
-    --green:  #00FF00;
-    --shadow: 4px 4px 0px #FFFFFF;
-    --border: 3px solid #FFFFFF;
-
-    --bg:        #000000;
-    --bg-card:   #111111;
-    --text:      #FFFFFF;
-    --text-dim:  rgba(255,255,255,0.55);
-    --text-muted:#CCCCCC;
-    --accent:    #FFFF00;
-    --nav-bg:    #000000;
-    --nav-text:  #888;
-    --nav-active:#FFFF00;
-    --input-bg:  #1A1A1A;
+    --fs-nav: 11px;
   }
 
   /* ── WARM PAPER THEME (Cream/Brown) ── */
@@ -581,14 +535,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 10px 4px 12px;
+    padding: 14px 4px 16px;
     cursor: pointer;
     border: none;
     background: none;
     color: var(--nav-text);
     font-family: var(--font);
     font-size: var(--fs-nav);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     gap: 3px;
     transition: background 0.1s;
@@ -598,7 +552,7 @@
   .nav-btn:last-child { border-right: none; }
   .nav-btn:hover { background: rgba(255,255,255,0.08); }
   .nav-btn.active { color: var(--nav-active); }
-  .nav-icon { font-size: 20px; line-height: 1; }
+  .nav-icon { font-size: 22px; line-height: 1; }
 
   /* ══════════════════════════════
      RECORDING MODAL
@@ -1402,8 +1356,6 @@
           </div>
           <div class="settings-theme-btns">
             <button class="settings-theme-btn" id="themeDefault" onclick="onSettingTheme('default')" title="Yellow">☀️</button>
-            <button class="settings-theme-btn" id="themeNight"   onclick="onSettingTheme('night')"   title="Night">🌙</button>
-            <button class="settings-theme-btn" id="themeHico"    onclick="onSettingTheme('hico')"    title="High Contrast">◑</button>
             <button class="settings-theme-btn" id="themeWarm"    onclick="onSettingTheme('warm')"    title="Warm Paper">📜</button>
           </div>
         </div>
@@ -2056,7 +2008,7 @@ const appConfig = {
   bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
 };
 
-const THEMES = ['default', 'night', 'hico', 'warm'];
+const THEMES = ['default', 'warm'];
 
 // ── LANGUAGE STATE ──────────────────────────────────────────
 // Default to French (Dad is in Montréal)
