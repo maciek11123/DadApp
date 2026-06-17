@@ -566,9 +566,68 @@
   .nav-btn.active { color: var(--nav-active); }
   .nav-icon { font-size: 24px; line-height: 1; }
 
-  /* ══════════════════════════════
-     RECORDING MODAL
-  ══════════════════════════════ */
+  /* ── NOTES ARCHIVE TABS ── */
+  .notes-tab-bar {
+    display: flex;
+    border: var(--border);
+    box-shadow: 3px 3px 0 var(--black);
+    margin-bottom: 14px;
+    background: var(--bg);
+  }
+  .notes-tab {
+    flex: 1;
+    padding: 12px 8px;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .notes-tab:first-child { border-right: var(--border); }
+  .notes-tab.active { background: var(--text); color: var(--bg); }
+  .notes-tab:not(.active):hover { background: var(--grey); }
+
+  /* Permanent delete btn in archive */
+  .note-perm-delete {
+    background: none;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    color: var(--text-dim);
+    padding: 0 0 0 4px;
+    flex-shrink: 0;
+    transition: color 0.1s;
+  }
+  .note-perm-delete:hover { color: #c0392b; }
+  .note-archive-btn {
+    background: none;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    color: var(--text-dim);
+    padding: 0 0 0 4px;
+    flex-shrink: 0;
+  }
+  .note-archive-btn:hover { color: var(--accent); }
+  .note-restore-btn {
+    font-family: var(--font);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 4px 8px;
+    border: var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    color: var(--text);
+    margin-top: 6px;
+    display: inline-block;
+  }
+
   .modal-overlay {
     display: none;
     position: fixed;
@@ -1305,6 +1364,13 @@
           <button class="btn btn-pink" id="btnRecAudio" onclick="openRecorder()"></button>
         </div>
       </div>
+
+      <!-- Archive toggle -->
+      <div class="notes-tab-bar">
+        <button class="notes-tab active" id="notesTabActive" onclick="setNotesTab('active')">📝 <span data-i18n="notes_tab_active"></span></button>
+        <button class="notes-tab" id="notesTabArchive" onclick="setNotesTab('archive')">🗂️ <span data-i18n="notes_tab_archive"></span></button>
+      </div>
+
       <div class="notes-list" id="notesList"></div>
     </div>
 
@@ -1703,6 +1769,12 @@ const I18N = {
     btn_add_bill: '+ Ajouter Facture',
 
     label_all_notes: 'TOUTES LES NOTES',
+    notes_tab_active: 'NOTES',
+    notes_tab_archive: 'ARCHIVES',
+    notes_archived: 'NOTE ARCHIVÉE',
+    notes_restored: 'NOTE RESTAURÉE',
+    notes_perm_deleted: 'SUPPRIMÉE DÉFINITIVEMENT',
+    notes_archive_empty: 'ARCHIVE VIDE',
     history_empty: 'AUCUN HISTORIQUE.',
 
     rec_title: 'Enregistrer',
@@ -1841,6 +1913,12 @@ const I18N = {
     btn_add_bill: '+ Dodaj Rachunek',
 
     label_all_notes: 'WSZYSTKIE NOTATKI',
+    notes_tab_active: 'NOTATKI',
+    notes_tab_archive: 'ARCHIWUM',
+    notes_archived: 'ZARCHIWIZOWANO',
+    notes_restored: 'PRZYWRÓCONO',
+    notes_perm_deleted: 'TRWALE USUNIĘTO',
+    notes_archive_empty: 'ARCHIWUM PUSTE',
     history_empty: 'BRAK HISTORII.',
 
     rec_title: 'Nagrywanie',
@@ -1980,6 +2058,12 @@ const I18N = {
     btn_add_bill: '+ Add Bill',
 
     label_all_notes: 'ALL NOTES',
+    notes_tab_active: 'NOTES',
+    notes_tab_archive: 'ARCHIVE',
+    notes_archived: 'NOTE ARCHIVED',
+    notes_restored: 'NOTE RESTORED',
+    notes_perm_deleted: 'PERMANENTLY DELETED',
+    notes_archive_empty: 'ARCHIVE IS EMPTY',
     history_empty: 'NO HISTORY YET.',
 
     rec_title: 'Record Audio Note',
@@ -2236,25 +2320,51 @@ function renderAll() {
   // Firebase views render via real-time listeners, not renderAll
 }
 
+let notesTab = 'active'; // 'active' | 'archive'
+
+function setNotesTab(tab) {
+  notesTab = tab;
+  document.getElementById('notesTabActive').classList.toggle('active', tab === 'active');
+  document.getElementById('notesTabArchive').classList.toggle('active', tab === 'archive');
+  renderNotes();
+}
+
 function renderNotes() {
   const el = document.getElementById('notesList');
-  if (!state.notes.length) {
-    el.innerHTML = `<div class="empty-state">${escHtml(t('no_notes_yet')).replace('\n','<br>')}</div>`;
+  if (!el) return;
+
+  const allNotes = state.notes;
+  const list = notesTab === 'archive'
+    ? allNotes.map((n, i) => ({n, i})).filter(({n}) => n.deleted)
+    : allNotes.map((n, i) => ({n, i})).filter(({n}) => !n.deleted);
+
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state">${escHtml(notesTab === 'archive' ? t('notes_archive_empty') || 'ARCHIVE IS EMPTY' : t('no_notes_yet')).replace('\n','<br>')}</div>`;
     return;
   }
-  el.innerHTML = state.notes.map((n, i) => `
-    <div class="note-item" onclick="${n.audioUrl ? '' : `loadNote(${i})`}" style="${n.audioUrl ? 'cursor:default' : ''}">
+
+  el.innerHTML = list.map(({n, i}) => {
+    const isAudio = !!n.audioUrl;
+    const isArchive = notesTab === 'archive';
+
+    const actionBtns = isArchive
+      ? `<button class="note-archive-btn" onclick="event.stopPropagation();restoreNote(${i})" title="Restore">↩️</button>
+         <button class="note-perm-delete" onclick="event.stopPropagation();if(confirm('Permanently delete?'))permDeleteNote(${i})" title="Delete forever">🗑️</button>`
+      : `<button class="note-archive-btn" onclick="event.stopPropagation();archiveNote(${i})" title="Archive">🗂️</button>`;
+
+    return `
+    <div class="note-item" onclick="${isAudio || isArchive ? '' : `loadNote(${i})`}" style="${isAudio || isArchive ? 'cursor:default' : ''}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div class="note-item-title">${escHtml(n.title || '(UNTITLED)')}</div>
-        <button onclick="event.stopPropagation();deleteNote(${i})" style="background:none;border:none;font-size:16px;cursor:pointer;color:#888;padding:0 0 0 8px;flex-shrink:0;">✕</button>
+        <div class="note-item-title">${isAudio ? '🎙️ ' : ''}${escHtml(n.title || '(UNTITLED)')}</div>
+        <div style="display:flex;gap:2px;align-items:center;">${actionBtns}</div>
       </div>
-      ${n.audioUrl ? `
+      ${isAudio ? `
         <audio controls src="${n.audioUrl}" style="width:100%;margin-top:8px;height:40px;" onclick="event.stopPropagation()"></audio>
-        <button onclick="event.stopPropagation();retranscribe(${i})" style="width:100%;margin-top:8px;padding:10px;background:#2F35E1;color:white;border:2px solid #000;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.1em;cursor:pointer;">🔤 TRANSCRIBE</button>
+        ${!isArchive ? `<button onclick="event.stopPropagation();retranscribe(${i})" style="width:100%;margin-top:8px;padding:10px;background:#2F35E1;color:white;border:2px solid #000;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.1em;cursor:pointer;">🔤 TRANSCRIBE</button>` : ''}
       ` : n.body ? `<div class="note-item-preview">${escHtml(n.body)}</div>` : ''}
-      <div class="note-item-meta">${n.date}</div>
-    </div>
-  `).join('');
+      <div class="note-item-meta">${n.date || ''}${n.deletedAt ? ' · 🗂️ ' + new Date(n.deletedAt).toLocaleDateString('en-CA',{month:'short',day:'numeric'}).toUpperCase() : ''}</div>
+    </div>`;
+  }).join('');
 }
 
 // ── PHASE 4: GIANT ACCESSIBLE TODAY RENDER ─────────────────
@@ -2898,11 +3008,31 @@ function savePlainAudioNote() {
   showToast(t('toast_gemini_err'));
 }
 
-function deleteNote(i) {
+function archiveNote(i) {
+  state.notes[i].deleted = true;
+  state.notes[i].deletedAt = new Date().toISOString();
+  save();
+  renderNotes();
+  showToast(t('notes_archived'));
+}
+
+function restoreNote(i) {
+  delete state.notes[i].deleted;
+  delete state.notes[i].deletedAt;
+  save();
+  renderNotes();
+  showToast(t('notes_restored'));
+}
+
+function permDeleteNote(i) {
   state.notes.splice(i, 1);
   save();
   renderNotes();
+  showToast(t('notes_perm_deleted'));
 }
+
+// Keep old name as alias so any remaining references don't break
+function deleteNote(i) { archiveNote(i); }
 
 async function retranscribe(i) {
   const note = state.notes[i];
