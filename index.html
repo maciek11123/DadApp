@@ -3031,16 +3031,16 @@ const favoriteStores = [
 ];
 
 // ── STORES STATE ─────────────────────────────────────────────
-let userLat = 46.0697;  // Chertsey, QC default
-let userLng = -73.8811;
+let userLat = null;
+let userLng = null;
 let locationStatus = 'idle'; // idle | locating | located | denied
 let detectedStoreIds = new Set(); // store IDs mentioned in latest Gemini result
 let storeHoursCache = {}; // placeId → { open_now, closing_time, fetched_at }
 
 // ── GEOLOCATION ──────────────────────────────────────────────
-function locateMe() {
+function locateMe(silent = false) {
   if (!navigator.geolocation) {
-    showToast(t('toast_location_err'));
+    if (!silent) showToast(t('toast_location_err'));
     return;
   }
   locationStatus = 'locating';
@@ -3057,11 +3057,14 @@ function locateMe() {
     (err) => {
       locationStatus = err.code === 1 ? 'denied' : 'idle';
       updateLocateBtn();
-      showToast(err.code === 1 ? t('toast_location_denied') : t('toast_location_err'));
+      if (!silent) showToast(err.code === 1 ? t('toast_location_denied') : t('toast_location_err'));
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
 }
+
+// Auto-locate on startup so stores sort by real distance immediately
+locateMe(true);
 
 function updateLocateBtn() {
   const btn = document.getElementById('storesLocateBtn');
