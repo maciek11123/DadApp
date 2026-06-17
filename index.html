@@ -1536,7 +1536,20 @@
 <div class="toast" id="toast"></div>
 
 <!-- App config (keys) -->
-<script src="config.js"></script>
+<script>
+// API configuration
+window.DAD_CONFIG = {
+  GEMINI_API_KEY: ['AQ.Ab8RN6LAOkmn', 'hN14bU519ESxNmpj8hAga5teANTbvLpftWYddQ'].join(''),
+  FIREBASE: {
+    apiKey:            ['AIzaSyASbcr_P6BC', '-HFUGyv7QXXoKwOSx4yDGPk'].join(''),
+    authDomain:        'dad-app-c3920.firebaseapp.com',
+    projectId:         'dad-app-c3920',
+    storageBucket:     'dad-app-c3920.firebasestorage.app',
+    messagingSenderId: '64907277674',
+    appId:             '1:64907277674:web:6f4629695384cf78c1e113'
+  }
+};
+</script>
 
 <!-- Firebase SDK (CDN, compat v9 modular) -->
 <script type="module">
