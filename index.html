@@ -2185,10 +2185,14 @@ function renderNotes() {
     return;
   }
   el.innerHTML = state.notes.map((n, i) => `
-    <div class="note-item" onclick="${n.audioUrl ? '' : `loadNote(${i})`}">
-      <div class="note-item-title">${escHtml(n.title || '(UNTITLED)')}</div>
+    <div class="note-item" onclick="${n.audioUrl ? '' : `loadNote(${i})`}" style="${n.audioUrl ? 'cursor:default' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div class="note-item-title">${escHtml(n.title || '(UNTITLED)')}</div>
+        <button onclick="event.stopPropagation();deleteNote(${i})" style="background:none;border:none;font-size:16px;cursor:pointer;color:#888;padding:0 0 0 8px;flex-shrink:0;">✕</button>
+      </div>
       ${n.audioUrl ? `
-        <audio controls src="${n.audioUrl}" style="width:100%;margin-top:8px;height:36px;" onclick="event.stopPropagation()"></audio>
+        <audio controls src="${n.audioUrl}" style="width:100%;margin-top:8px;height:40px;" onclick="event.stopPropagation()"></audio>
+        <button onclick="event.stopPropagation();retranscribe(${i})" style="width:100%;margin-top:8px;padding:10px;background:#2F35E1;color:white;border:2px solid #000;font-family:var(--font);font-size:11px;font-weight:700;letter-spacing:0.1em;cursor:pointer;">🔤 TRANSCRIBE</button>
       ` : n.body ? `<div class="note-item-preview">${escHtml(n.body)}</div>` : ''}
       <div class="note-item-meta">${n.date}</div>
     </div>
@@ -2798,20 +2802,43 @@ function dismissTranscription() {
 function savePlainAudioNote() {
   if (!audioChunks.length) return;
   const blob = new Blob(audioChunks, { type: 'audio/webm' });
-  const url = URL.createObjectURL(blob);
   const now = new Date();
-  state.notes.push({
-    id: Date.now(),
-    title: `🎙 AUDIO NOTE ${now.toLocaleTimeString('en-CA', { hour:'2-digit', minute:'2-digit' })}`,
-    body: `[Audio recording — ${recSeconds}s]`,
-    audioUrl: url,
-    done: false,
-    date: now.toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }).toUpperCase(),
-  });
-  save();
-  renderNotes();
+  // Store as base64 so audio persists across page reloads
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.notes.push({
+      id: Date.now(),
+      title: `🎙 AUDIO NOTE ${now.toLocaleTimeString('en-CA', { hour:'2-digit', minute:'2-digit' })}`,
+      body: `[Audio recording — ${recSeconds}s]`,
+      audioUrl: reader.result,   // base64 data URL — survives reload
+      audioWebm: reader.result,  // keep raw for re-transcription
+      done: false,
+      lang: uiLang,
+      date: now.toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }).toUpperCase(),
+    });
+    save();
+    renderNotes();
+  };
+  reader.readAsDataURL(blob);
   closeRecorder();
   showToast(t('toast_gemini_err'));
+}
+
+function deleteNote(i) {
+  state.notes.splice(i, 1);
+  save();
+  renderNotes();
+}
+
+async function retranscribe(i) {
+  const note = state.notes[i];
+  if (!note?.audioWebm) { showToast('No audio data'); return; }
+  // Reconstruct audioChunks from base64
+  const res = await fetch(note.audioWebm);
+  const blob = await res.blob();
+  audioChunks = [blob];
+  recSeconds = 0;
+  await sendToGemini();
 }
 
 function blobToBase64(blob) {
@@ -3139,7 +3166,7 @@ function renderStores() {
 
 // ── CONFIG ─────────────────────────────────────────────────
 const GEMINI_API_KEY = window.DAD_CONFIG?.GEMINI_API_KEY || '';
-const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 // ── CAPACITOR BRIDGE ───────────────────────────────────────
 window.addEventListener('message', function(event) {
