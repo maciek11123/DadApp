@@ -1421,6 +1421,20 @@
           </label>
         </div>
 
+        <div class="settings-divider"></div>
+
+        <!-- ZOOM SLIDER ROW -->
+        <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:10px;">
+          <div class="settings-row-label">
+            <span class="settings-row-icon">🔍</span>
+            <span data-i18n="settings_zoom_label"></span>
+            <span id="zoomValueLabel" style="margin-left:auto;font-size:13px;font-weight:700;opacity:0.7;"></span>
+          </div>
+          <input type="range" id="settingZoom" min="70" max="150" step="5"
+            style="width:100%;accent-color:var(--accent);height:6px;cursor:pointer;"
+            oninput="onSettingZoom(this.value)">
+        </div>
+
       </div><!-- /settings-card -->
 
       <!-- INSTALL BUTTON -->
@@ -1675,6 +1689,7 @@ const I18N = {
     stores_map: 'CARTE',
     stores_detected_ribbon: 'MENTIONNÉ DANS LA NOTE',
     stores_km: 'km',
+    stores_expand_branches: 'TROUVER PLUS DE SUCCURSALES',
     stores_empty: 'AUCUN MAGASIN FAVORI.\nModifiez favoriteStores dans le code.',
     toast_location_denied: 'ACCÈS LOCALISATION REFUSÉ',
     toast_location_err: 'ERREUR DE LOCALISATION',
@@ -1767,10 +1782,10 @@ const I18N = {
     aisle_pharmacy:  'PHARMACIE',
     aisle_other:     'DIVERS',
     settings_theme_label: 'THÈME',
-    settings_bigmode_label: 'GRAND MODE',
-    toast_theme_saved: 'THÈME CHANGÉ ✓',
+    settings_bigmode_label: 'GRAND MODE',    toast_theme_saved: 'THÈME CHANGÉ ✓',
     toast_bigmode_on: 'GRAND MODE ACTIVÉ ✓',
     toast_bigmode_off: 'GRAND MODE DÉSACTIVÉ',
+    settings_zoom_label: 'ZOOM',
   },
   pl: {
     nav_notes: 'NOTATKI',
@@ -1811,6 +1826,7 @@ const I18N = {
     stores_map: 'MAPA',
     stores_detected_ribbon: 'WSPOMNIANE W NOTATCE',
     stores_km: 'km',
+    stores_expand_branches: 'ZNAJDŹ WIĘCEJ ODDZIAŁÓW',
     stores_empty: 'BRAK ULUBIONYCH SKLEPÓW.\nEdytuj favoriteStores w kodzie.',
     toast_location_denied: 'ODMÓWIONO DOSTĘPU DO LOKALIZACJI',
     toast_location_err: 'BŁĄD LOKALIZACJI',
@@ -1907,6 +1923,7 @@ const I18N = {
     toast_theme_saved: 'MOTYW ZMIENIONY ✓',
     toast_bigmode_on: 'TRYB DUŻEJ CZCIONKI WŁĄCZONY ✓',
     toast_bigmode_off: 'TRYB DUŻEJ CZCIONKI WYŁĄCZONY',
+    settings_zoom_label: 'ZOOM',
   },
   en: {
     nav_notes: 'NOTES',
@@ -1947,6 +1964,7 @@ const I18N = {
     stores_map: 'MAP',
     stores_detected_ribbon: 'MENTIONED IN LAST NOTE',
     stores_km: 'km',
+    stores_expand_branches: 'FIND MORE LOCATIONS',
     stores_empty: 'NO FAVOURITE STORES.\nEdit favoriteStores in the code.',
     toast_location_denied: 'LOCATION ACCESS DENIED',
     toast_location_err: 'LOCATION ERROR',
@@ -2043,6 +2061,7 @@ const I18N = {
     toast_theme_saved: 'THEME CHANGED ✓',
     toast_bigmode_on: 'BIG MODE ON ✓',
     toast_bigmode_off: 'BIG MODE OFF',
+    settings_zoom_label: 'ZOOM',
   },
 };
 
@@ -2051,6 +2070,7 @@ const appConfig = {
   showCallPopup: JSON.parse(localStorage.getItem('dadapp_showCallPopup') ?? 'true'),
   theme:   localStorage.getItem('dadapp_theme')   || 'default',
   bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
+  zoom:    parseFloat(localStorage.getItem('dadapp_zoom') ?? '1'),
 };
 
 const THEMES = ['default', 'warm'];
@@ -3204,19 +3224,20 @@ function renderStores() {
       : null;
 
     const cached = storeHoursCache[store.placeId];
-    let hoursBadge = '';
-    if (cached === undefined) {
-      // Not yet fetched — show loading placeholder
-      hoursBadge = `<span class="store-hours-badge loading" id="hours-${store.id}">⏳ ${t('stores_hours_loading')}</span>`;
-    } else if (cached === null) {
-      hoursBadge = `<span class="store-hours-badge loading">${t('stores_hours_unavail')}</span>`;
-    } else if (cached.open_now === true) {
-      hoursBadge = `<span class="store-hours-badge open">✓ ${t('stores_open')}</span>`;
-    } else if (cached.open_now === false) {
-      hoursBadge = `<span class="store-hours-badge closed">✗ ${t('stores_closed')}</span>`;
-    } else {
-      hoursBadge = `<span class="store-hours-badge loading">${t('stores_hours_unavail')}</span>`;
+
+    function hoursHtml(c, id) {
+      if (!c) return `<span class="store-hours-badge loading" ${id ? `id="hours-${id}"` : ''}>⏳ ${t('stores_hours_loading')}</span>`;
+      const today = new Date().getDay(); // 0=Sun
+      const todayText = c.weekday_text?.[(today + 6) % 7] || ''; // weekday_text is Mon-Sun
+      const todayHours = todayText ? todayText.replace(/^[^:]+:\s*/,'') : '';
+      if (c.open_now === true)  return `<span class="store-hours-badge open" ${id ? `id="hours-${id}"` : ''}>✓ ${t('stores_open')}${todayHours ? ' · ' + todayHours : ''}</span>`;
+      if (c.open_now === false) return `<span class="store-hours-badge closed" ${id ? `id="hours-${id}"` : ''}>✗ ${t('stores_closed')}${todayHours ? ' · ' + todayHours : ''}</span>`;
+      return `<span class="store-hours-badge loading" ${id ? `id="hours-${id}"` : ''}>${t('stores_hours_unavail')}</span>`;
     }
+
+    let hoursBadge = cached === undefined
+      ? `<span class="store-hours-badge loading" id="hours-${store.id}">⏳ ${t('stores_hours_loading')}</span>`
+      : hoursHtml(cached, store.id);
 
     const distBadge = dist !== null
       ? `<span class="store-distance-badge ${isNearest ? 'nearest' : ''}">
@@ -3258,7 +3279,7 @@ function renderStores() {
         </div>
         <div class="store-expand-row">
           <button class="store-expand-btn" onclick="event.stopPropagation();expandBranches('${escHtml(store.name)}')">
-            📍 ${t('stores_expand_branches') || 'FIND MORE ' + store.name.toUpperCase() + ' LOCATIONS'}
+            📍 ${t('stores_expand_branches')}
           </button>
         </div>
       </div>`;
@@ -3270,15 +3291,17 @@ function renderStores() {
       storeHoursCache[store.placeId] = null; // mark as in-flight
       fetchStoreHours(store).then(result => {
         storeHoursCache[store.placeId] = result;
-        // Update just the hours badge in-place (no full re-render)
         const badge = document.getElementById(`hours-${store.id}`);
         if (badge) {
+          const today = new Date().getDay();
+          const todayText = result?.weekday_text?.[(today + 6) % 7] || '';
+          const todayHours = todayText ? todayText.replace(/^[^:]+:\s*/,'') : '';
           if (!result) {
             badge.outerHTML = `<span class="store-hours-badge loading">${t('stores_hours_unavail')}</span>`;
           } else if (result.open_now === true) {
-            badge.outerHTML = `<span class="store-hours-badge open">✓ ${t('stores_open')}</span>`;
+            badge.outerHTML = `<span class="store-hours-badge open">✓ ${t('stores_open')}${todayHours ? ' · ' + todayHours : ''}</span>`;
           } else if (result.open_now === false) {
-            badge.outerHTML = `<span class="store-hours-badge closed">✗ ${t('stores_closed')}</span>`;
+            badge.outerHTML = `<span class="store-hours-badge closed">✗ ${t('stores_closed')}${todayHours ? ' · ' + todayHours : ''}</span>`;
           } else {
             badge.outerHTML = `<span class="store-hours-badge loading">${t('stores_hours_unavail')}</span>`;
           }
@@ -3429,6 +3452,21 @@ function onSettingBigMode(checkbox) {
   showToast(t(checkbox.checked ? 'toast_bigmode_on' : 'toast_bigmode_off'));
 }
 
+// ── ZOOM ──────────────────────────────────────────────────────
+function applyZoom(pct) {
+  appConfig.zoom = pct / 100;
+  localStorage.setItem('dadapp_zoom', String(appConfig.zoom));
+  document.body.style.zoom = appConfig.zoom;
+  const lbl = document.getElementById('zoomValueLabel');
+  if (lbl) lbl.textContent = pct + '%';
+  const slider = document.getElementById('settingZoom');
+  if (slider) slider.value = pct;
+}
+
+function onSettingZoom(val) {
+  applyZoom(parseInt(val));
+}
+
 // ── RENDER SETTINGS TAB ──────────────────────────────────────
 
 function renderSettings() {
@@ -3452,6 +3490,13 @@ function renderSettings() {
   // Big mode toggle
   const bigToggle = document.getElementById('settingBigMode');
   if (bigToggle) bigToggle.checked = !!appConfig.bigMode;
+
+  // Zoom slider
+  const zoomPct = Math.round((appConfig.zoom || 1) * 100);
+  const zoomSlider = document.getElementById('settingZoom');
+  if (zoomSlider) zoomSlider.value = zoomPct;
+  const zoomLbl = document.getElementById('zoomValueLabel');
+  if (zoomLbl) zoomLbl.textContent = zoomPct + '%';
 }
 
 
@@ -3637,6 +3682,7 @@ window.t = t;
 // ── PHASE 7 BOOT: apply persisted theme + big mode ──────────
 applyTheme(appConfig.theme);
 applyBigMode(appConfig.bigMode);
+applyZoom(Math.round((appConfig.zoom || 1) * 100));
 window.t = t; // expose for Firebase module
 
 // ── PWA: Service Worker + Install Prompt ─────────────────────
