@@ -75,6 +75,40 @@
     --input-bg:  #FFFDF7;
   }
 
+  [data-theme="bw"] {
+    --yellow: #FFFFFF;
+    --black:  #000000;
+    --white:  #FFFFFF;
+    --blue:   #000000;
+    --grey:   #E0E0E0;
+    --green:  #000000;
+    --shadow: 4px 4px 0px #000000;
+    --border: 3px solid #000000;
+
+    --bg:        #FFFFFF;
+    --bg-card:   #FFFFFF;
+    --text:      #000000;
+    --text-dim:  rgba(0,0,0,0.4);
+    --text-muted:#444444;
+    --accent:    #000000;
+    --nav-bg:    #000000;
+    --nav-text:  #888888;
+    --nav-active:#FFFFFF;
+    --input-bg:  #FFFFFF;
+  }
+
+  /* B&W theme: accent buttons go black/white instead of blue/pink */
+  [data-theme="bw"] .btn-blue  { background: #000; color: #fff; }
+  [data-theme="bw"] .btn-pink  { background: #333; color: #fff; }
+  [data-theme="bw"] .btn-green { background: #000; color: #fff; }
+  [data-theme="bw"] .ledger-summary { background: #000; color: #fff; }
+  [data-theme="bw"] .store-call-btn { background: #000; color: #fff; }
+  [data-theme="bw"] .store-hours-badge.open { background: #000; color: #fff; }
+  [data-theme="bw"] .store-hours-badge.closed { background: #e0e0e0; color: #000; }
+  [data-theme="bw"] .notes-tab.active { background: #000; color: #fff; }
+  [data-theme="bw"] .ledger-settle-btn { background: #000; color: #fff; }
+  [data-theme="bw"] .tts-read-all-btn { background: #000; color: #fff; }
+
   /* ── BIG MODE overrides ── */
   [data-big="1"] {
     --fs-xs:  14px;
@@ -547,7 +581,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 12px 2px 14px;
+    padding: 10px 2px 12px;
     cursor: pointer;
     border: none;
     background: none;
@@ -556,7 +590,7 @@
     font-size: var(--fs-nav);
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    gap: 5px;
+    gap: 4px;
     transition: background 0.1s;
     border-right: 2px solid rgba(255,255,255,0.12);
     white-space: nowrap;
@@ -565,6 +599,17 @@
   .nav-btn:hover { background: rgba(255,255,255,0.08); }
   .nav-btn.active { color: var(--nav-active); }
   .nav-icon { font-size: 24px; line-height: 1; }
+  /* Nav label — hidden by default, show only if enough room */
+  .nav-label {
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: none; /* hidden; icon + title tooltip is enough */
+  }
 
   /* ── NOTES ARCHIVE TABS ── */
   .notes-tab-bar {
@@ -1463,6 +1508,7 @@
           <div class="settings-theme-btns">
             <button class="settings-theme-btn" id="themeDefault" onclick="onSettingTheme('default')" title="Yellow">☀️</button>
             <button class="settings-theme-btn" id="themeWarm"    onclick="onSettingTheme('warm')"    title="Warm Paper">📜</button>
+            <button class="settings-theme-btn" id="themeBw"      onclick="onSettingTheme('bw')"      title="Black &amp; White" style="font-size:14px;font-weight:900;letter-spacing:-1px;">B&amp;W</button>
           </div>
         </div>
 
@@ -1560,30 +1606,30 @@
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-view="notes" onclick="switchView('notes', this)">
+    <button class="nav-btn active" data-view="notes" onclick="switchView('notes', this)" title="Notes">
       <span class="nav-icon">✏️</span>
-      <span data-i18n="nav_notes"></span>
+      <span class="nav-label" data-i18n="nav_notes"></span>
     </button>
-    <button class="nav-btn" data-view="today" onclick="switchView('today', this)">
+    <button class="nav-btn" data-view="today" onclick="switchView('today', this)" title="Today">
       <span class="nav-icon">◉</span>
-      <span data-i18n="nav_today"></span>
+      <span class="nav-label" data-i18n="nav_today"></span>
     </button>
-    <button class="nav-btn" data-view="bring" onclick="switchView('bring', this)">
+    <button class="nav-btn" data-view="bring" onclick="switchView('bring', this)" title="Bring">
       <span class="nav-icon">📦</span>
-      <span data-i18n="nav_bring"></span>
+      <span class="nav-label" data-i18n="nav_bring"></span>
       <span class="nav-live-dot" id="bringDot" style="display:none"></span>
     </button>
-    <button class="nav-btn" data-view="ledger" onclick="switchView('ledger', this)">
+    <button class="nav-btn" data-view="ledger" onclick="switchView('ledger', this)" title="Ledger">
       <span class="nav-icon">💳</span>
-      <span data-i18n="nav_ledger"></span>
+      <span class="nav-label" data-i18n="nav_ledger"></span>
     </button>
-    <button class="nav-btn" data-view="stores" onclick="switchView('stores', this)">
+    <button class="nav-btn" data-view="stores" onclick="switchView('stores', this)" title="Stores">
       <span class="nav-icon">🛒</span>
-      <span data-i18n="nav_stores"></span>
+      <span class="nav-label" data-i18n="nav_stores"></span>
     </button>
-    <button class="nav-btn" data-view="settings" onclick="switchView('settings', this)">
+    <button class="nav-btn" data-view="settings" onclick="switchView('settings', this)" title="Settings">
       <span class="nav-icon">⚙️</span>
-      <span data-i18n="nav_settings"></span>
+      <span class="nav-label" data-i18n="nav_settings"></span>
     </button>
   </nav>
 
@@ -2156,7 +2202,7 @@ const appConfig = {
   bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
 };
 
-const THEMES = ['default', 'warm'];
+const THEMES = ['default', 'warm', 'bw'];
 
 // ── LANGUAGE STATE ──────────────────────────────────────────
 // Default to French (Dad is in Montréal)
@@ -2350,7 +2396,8 @@ function renderNotes() {
     const actionBtns = isArchive
       ? `<button class="note-archive-btn" onclick="event.stopPropagation();restoreNote(${i})" title="Restore">↩️</button>
          <button class="note-perm-delete" onclick="event.stopPropagation();if(confirm('Permanently delete?'))permDeleteNote(${i})" title="Delete forever">🗑️</button>`
-      : `<button class="note-archive-btn" onclick="event.stopPropagation();archiveNote(${i})" title="Archive">🗂️</button>`;
+      : `<button class="note-archive-btn" onclick="event.stopPropagation();shareNote(${i})" title="Share">📤</button>
+         <button class="note-archive-btn" onclick="event.stopPropagation();archiveNote(${i})" title="Archive">🗂️</button>`;
 
     return `
     <div class="note-item" onclick="${isAudio || isArchive ? '' : `loadNote(${i})`}" style="${isAudio || isArchive ? 'cursor:default' : ''}">
@@ -3033,6 +3080,27 @@ function permDeleteNote(i) {
 
 // Keep old name as alias so any remaining references don't break
 function deleteNote(i) { archiveNote(i); }
+
+async function shareNote(i) {
+  const n = state.notes[i];
+  if (!n) return;
+  const title = n.title || t('no_notes_yet') || 'Note';
+  const text  = n.body  || '';
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text: text ? `${title}\n\n${text}` : title });
+    } catch(e) {
+      if (e.name !== 'AbortError') showToast('SHARE FAILED');
+    }
+  } else {
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(text ? `${title}\n\n${text}` : title);
+      showToast('COPIED TO CLIPBOARD');
+    } catch(e) { showToast('SHARE NOT SUPPORTED'); }
+  }
+}
+window.shareNote = shareNote;
 
 async function retranscribe(i) {
   const note = state.notes[i];
