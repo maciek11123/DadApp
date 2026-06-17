@@ -2013,6 +2013,13 @@ const I18N = {
   },
 };
 
+// ── APP CONFIG (persistent, Capacitor-bridgeable) ────────────
+const appConfig = {
+  showCallPopup: JSON.parse(localStorage.getItem('dadapp_showCallPopup') ?? 'true'),
+  theme:   localStorage.getItem('dadapp_theme')   || 'default',
+  bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
+};
+
 // ── LANGUAGE STATE ──────────────────────────────────────────
 // Default to French (Dad is in Montréal)
 let uiLang = localStorage.getItem('dadapp_lang') || 'fr';
@@ -3157,12 +3164,8 @@ renderAll();
 // PHASE 6 — SETTINGS TAB
 // ═══════════════════════════════════════════════════════════
 
-// ── APP CONFIG (persistent, Capacitor-bridgeable) ────────────
-const appConfig = {
-  showCallPopup: JSON.parse(localStorage.getItem('dadapp_showCallPopup') ?? 'true'),
-  theme:   localStorage.getItem('dadapp_theme')   || 'default',
-  bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
-};
+// ── APP CONFIG — declared early, populated below ─────────────
+// (moved to top of script — see PHASE 6 section for full declaration)
 
 function saveAppConfig() {
   localStorage.setItem('dadapp_showCallPopup', JSON.stringify(appConfig.showCallPopup));
