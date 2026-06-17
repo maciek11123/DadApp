@@ -181,8 +181,7 @@
   .scroll-area {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 80px;
-    padding: 8px 16px 16px;
+    padding: 8px 16px 100px;
     scrollbar-width: none;
   }
   .scroll-area::-webkit-scrollbar { display: none; }
@@ -1238,6 +1237,9 @@
     letter-spacing: 0.06em;
     margin-top: 3px;
     display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .ledger-item-amount {
     font-size: var(--fs-lg);
@@ -1281,13 +1283,6 @@
   <div class="status-bar">
     <span id="clockDisplay">22:20</span>
     <div class="status-right">
-      <!-- PHASE 4: Language switcher -->
-      <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setUiLang('fr')">FR</button>
-        <button class="lang-btn" onclick="setUiLang('pl')">PL</button>
-        <button class="lang-btn" onclick="setUiLang('en')">EN</button>
-      </div>
-
     </div>
   </div>
 
@@ -1421,20 +1416,6 @@
           </label>
         </div>
 
-        <div class="settings-divider"></div>
-
-        <!-- ZOOM SLIDER ROW -->
-        <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:10px;">
-          <div class="settings-row-label">
-            <span class="settings-row-icon">🔍</span>
-            <span data-i18n="settings_zoom_label"></span>
-            <span id="zoomValueLabel" style="margin-left:auto;font-size:13px;font-weight:700;opacity:0.7;"></span>
-          </div>
-          <input type="range" id="settingZoom" min="70" max="150" step="5"
-            style="width:100%;accent-color:var(--accent);height:6px;cursor:pointer;"
-            oninput="onSettingZoom(this.value)">
-        </div>
-
       </div><!-- /settings-card -->
 
       <!-- INSTALL BUTTON -->
@@ -1489,8 +1470,24 @@
         <button class="stores-locate-btn" id="storesLocateBtn" onclick="locateMe()">
           <span>📍</span><span id="storesLocateLabel"></span>
         </button>
+        <button class="stores-locate-btn" style="margin-left:8px;" onclick="showAddStoreModal()">
+          ➕ <span data-i18n="stores_add_store"></span>
+        </button>
       </div>
       <div id="storesList"></div>
+    </div>
+
+    <!-- ADD STORE MODAL -->
+    <div class="modal-overlay" id="addStoreModal">
+      <div class="modal">
+        <div class="modal-title" data-i18n="stores_add_store"></div>
+        <input class="title-input" id="addStoreName" type="text" maxlength="60" style="width:100%;margin-bottom:10px;" placeholder="Store name...">
+        <input class="title-input" id="addStoreAddr" type="text" maxlength="100" style="width:100%;margin-bottom:16px;" placeholder="Address (optional)...">
+        <div class="modal-actions">
+          <button class="btn" style="flex:1;" onclick="closeAddStoreModal()">✕ CANCEL</button>
+          <button class="btn btn-blue" style="flex:2;" onclick="confirmAddStore()">✓ ADD</button>
+        </div>
+      </div>
     </div>
 
   </div><!-- /scroll-area -->
@@ -1690,6 +1687,7 @@ const I18N = {
     stores_detected_ribbon: 'MENTIONNÉ DANS LA NOTE',
     stores_km: 'km',
     stores_expand_branches: 'TROUVER PLUS DE SUCCURSALES',
+    stores_add_store: 'AJOUTER MAGASIN',
     stores_empty: 'AUCUN MAGASIN FAVORI.\nModifiez favoriteStores dans le code.',
     toast_location_denied: 'ACCÈS LOCALISATION REFUSÉ',
     toast_location_err: 'ERREUR DE LOCALISATION',
@@ -1827,6 +1825,7 @@ const I18N = {
     stores_detected_ribbon: 'WSPOMNIANE W NOTATCE',
     stores_km: 'km',
     stores_expand_branches: 'ZNAJDŹ WIĘCEJ ODDZIAŁÓW',
+    stores_add_store: 'DODAJ SKLEP',
     stores_empty: 'BRAK ULUBIONYCH SKLEPÓW.\nEdytuj favoriteStores w kodzie.',
     toast_location_denied: 'ODMÓWIONO DOSTĘPU DO LOKALIZACJI',
     toast_location_err: 'BŁĄD LOKALIZACJI',
@@ -1965,6 +1964,7 @@ const I18N = {
     stores_detected_ribbon: 'MENTIONED IN LAST NOTE',
     stores_km: 'km',
     stores_expand_branches: 'FIND MORE LOCATIONS',
+    stores_add_store: 'ADD STORE',
     stores_empty: 'NO FAVOURITE STORES.\nEdit favoriteStores in the code.',
     toast_location_denied: 'LOCATION ACCESS DENIED',
     toast_location_err: 'LOCATION ERROR',
@@ -2070,14 +2070,13 @@ const appConfig = {
   showCallPopup: JSON.parse(localStorage.getItem('dadapp_showCallPopup') ?? 'true'),
   theme:   localStorage.getItem('dadapp_theme')   || 'default',
   bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
-  zoom:    parseFloat(localStorage.getItem('dadapp_zoom') ?? '1'),
 };
 
 const THEMES = ['default', 'warm'];
 
 // ── LANGUAGE STATE ──────────────────────────────────────────
 // Default to French (Dad is in Montréal)
-let uiLang = localStorage.getItem('dadapp_lang') || 'fr';
+let uiLang = localStorage.getItem('dadapp_lang') || 'en';
 
 function t(key, ...args) {
   const str = I18N[uiLang]?.[key] ?? I18N['en']?.[key] ?? key;
@@ -3074,7 +3073,77 @@ let userLat = null;
 let userLng = null;
 let locationStatus = 'idle'; // idle | locating | located | denied
 let detectedStoreIds = new Set(); // store IDs mentioned in latest Gemini result
-let storeHoursCache = {}; // placeId → { open_now, closing_time, fetched_at }
+let storeHoursCache = {}; // placeId → { open_now, weekday_text, fetched_at }
+
+// Favorites (persisted)
+let favoriteStoreIds = new Set(JSON.parse(localStorage.getItem('dadapp_fav_stores') || '[]'));
+function saveFavs() { localStorage.setItem('dadapp_fav_stores', JSON.stringify([...favoriteStoreIds])); }
+function toggleFav(placeId) {
+  if (favoriteStoreIds.has(placeId)) favoriteStoreIds.delete(placeId);
+  else favoriteStoreIds.add(placeId);
+  saveFavs();
+  renderStores();
+}
+window.toggleFav = toggleFav;
+
+// Custom stores (persisted)
+let customStores = JSON.parse(localStorage.getItem('dadapp_custom_stores') || '[]');
+function saveCustomStores() { localStorage.setItem('dadapp_custom_stores', JSON.stringify(customStores)); }
+
+function showAddStoreModal() {
+  document.getElementById('addStoreName').value = '';
+  document.getElementById('addStoreAddr').value = '';
+  document.getElementById('addStoreModal').classList.add('open');
+}
+function closeAddStoreModal() { document.getElementById('addStoreModal').classList.remove('open'); }
+async function confirmAddStore() {
+  const name = document.getElementById('addStoreName').value.trim();
+  if (!name) { showToast('ENTER A NAME'); return; }
+  const addr = document.getElementById('addStoreAddr').value.trim();
+  showToast('SEARCHING...');
+  // Try Places API to get real placeId + coords + phone
+  try {
+    const res = await fetch(`https://places.googleapis.com/v1/places:searchText?key=${PLACES_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location,places.internationalPhoneNumber' },
+      body: JSON.stringify({
+        textQuery: addr ? `${name} ${addr}` : name,
+        locationBias: userLat ? { circle: { center: { latitude: userLat, longitude: userLng }, radius: 50000 } } : undefined,
+        maxResultCount: 1
+      })
+    });
+    const data = await res.json();
+    const p = data.places?.[0];
+    const store = {
+      id: p?.id || ('custom_' + Date.now()),
+      name: p?.displayName?.text || name,
+      emoji: '📍',
+      address: p?.formattedAddress || addr || name,
+      placeId: p?.id || ('custom_' + Date.now()),
+      lat: p?.location?.latitude || userLat || 46.0697,
+      lng: p?.location?.longitude || userLng || -73.8811,
+      phone: (p?.internationalPhoneNumber || '').replace(/\s/g,'').replace(/[()]/g,'') || null,
+      keywords: [name.toLowerCase()],
+      custom: true,
+    };
+    customStores.push(store);
+    saveCustomStores();
+    closeAddStoreModal();
+    renderStores();
+    showToast('✓ ' + store.name + ' ADDED');
+  } catch(e) {
+    showToast('ERROR: ' + e.message?.slice(0,40));
+  }
+}
+function removeCustomStore(id) {
+  customStores = customStores.filter(s => s.id !== id);
+  saveCustomStores();
+  renderStores();
+}
+window.showAddStoreModal = showAddStoreModal;
+window.closeAddStoreModal = closeAddStoreModal;
+window.confirmAddStore = confirmAddStore;
+window.removeCustomStore = removeCustomStore;
 
 // ── GEOLOCATION ──────────────────────────────────────────────
 function locateMe(silent = false) {
@@ -3192,8 +3261,16 @@ function renderStores() {
     return;
   }
 
-  // Sort: detected first, then by distance if known
-  const sorted = [...favoriteStores].sort((a, b) => {
+  // Merge base + custom stores
+  const existingIds = new Set(favoriteStores.map(s => s.placeId));
+  const allStores = [...favoriteStores, ...customStores.filter(s => !existingIds.has(s.placeId))];
+
+  // Sort: favourites first, then detected, then by distance
+  const sorted = [...allStores].sort((a, b) => {
+    const aFav = favoriteStoreIds.has(a.placeId) ? 0 : 1;
+    const bFav = favoriteStoreIds.has(b.placeId) ? 0 : 1;
+    if (aFav !== bFav) return aFav - bFav;
+
     const aDetected = detectedStoreIds.has(a.id) ? 0 : 1;
     const bDetected = detectedStoreIds.has(b.id) ? 0 : 1;
     if (aDetected !== bDetected) return aDetected - bDetected;
@@ -3249,11 +3326,16 @@ function renderStores() {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${store.lat},${store.lng}&query_place_id=${store.placeId}`;
     const wazeUrl = `https://waze.com/ul?ll=${store.lat},${store.lng}&navigate=yes`;
 
+    const isFav = favoriteStoreIds.has(store.placeId);
+    const isCustom = store.custom === true;
+
     return `
       <div class="store-card ${isDetected ? 'detected' : ''}">
         <div class="store-detected-ribbon">${t('stores_detected_ribbon')}</div>
         <div class="store-card-body">
-          <div class="store-icon-zone">${store.emoji}</div>
+          <div class="store-icon-zone" onclick="toggleFav('${store.placeId}')" style="cursor:pointer;" title="Favourite">
+            ${isFav ? '⭐' : store.emoji}
+          </div>
           <div class="store-info">
             <div class="store-name">${escHtml(store.name)}</div>
             <div class="store-address">${escHtml(store.address)}</div>
@@ -3277,10 +3359,11 @@ function renderStores() {
             </a>` : ''}
           </div>
         </div>
-        <div class="store-expand-row">
-          <button class="store-expand-btn" onclick="event.stopPropagation();expandBranches('${escHtml(store.name)}')">
+        <div class="store-expand-row" style="display:flex;gap:0;">
+          <button class="store-expand-btn" style="flex:1;" onclick="event.stopPropagation();expandBranches('${escHtml(store.name)}')">
             📍 ${t('stores_expand_branches')}
           </button>
+          ${isCustom ? `<button class="store-expand-btn" style="color:var(--red,#c0392b);border-left:var(--border);" onclick="removeCustomStore('${store.id}')">🗑️ REMOVE</button>` : ''}
         </div>
       </div>`;
   }).join('');
@@ -3452,21 +3535,6 @@ function onSettingBigMode(checkbox) {
   showToast(t(checkbox.checked ? 'toast_bigmode_on' : 'toast_bigmode_off'));
 }
 
-// ── ZOOM ──────────────────────────────────────────────────────
-function applyZoom(pct) {
-  appConfig.zoom = pct / 100;
-  localStorage.setItem('dadapp_zoom', String(appConfig.zoom));
-  document.body.style.zoom = appConfig.zoom;
-  const lbl = document.getElementById('zoomValueLabel');
-  if (lbl) lbl.textContent = pct + '%';
-  const slider = document.getElementById('settingZoom');
-  if (slider) slider.value = pct;
-}
-
-function onSettingZoom(val) {
-  applyZoom(parseInt(val));
-}
-
 // ── RENDER SETTINGS TAB ──────────────────────────────────────
 
 function renderSettings() {
@@ -3490,13 +3558,6 @@ function renderSettings() {
   // Big mode toggle
   const bigToggle = document.getElementById('settingBigMode');
   if (bigToggle) bigToggle.checked = !!appConfig.bigMode;
-
-  // Zoom slider
-  const zoomPct = Math.round((appConfig.zoom || 1) * 100);
-  const zoomSlider = document.getElementById('settingZoom');
-  if (zoomSlider) zoomSlider.value = zoomPct;
-  const zoomLbl = document.getElementById('zoomValueLabel');
-  if (zoomLbl) zoomLbl.textContent = zoomPct + '%';
 }
 
 
@@ -3682,7 +3743,6 @@ window.t = t;
 // ── PHASE 7 BOOT: apply persisted theme + big mode ──────────
 applyTheme(appConfig.theme);
 applyBigMode(appConfig.bigMode);
-applyZoom(Math.round((appConfig.zoom || 1) * 100));
 window.t = t; // expose for Firebase module
 
 // ── PWA: Service Worker + Install Prompt ─────────────────────
