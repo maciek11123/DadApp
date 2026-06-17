@@ -880,6 +880,36 @@
   .store-map-btn:active { background: var(--grey); }
   .store-map-icon { font-size: 22px; }
 
+  /* Actions column (map + waze stacked) */
+  .store-actions {
+    display: flex;
+    flex-direction: column;
+    border-left: var(--border);
+    flex-shrink: 0;
+  }
+
+  /* Expand branches row */
+  .store-expand-row {
+    border-top: var(--border);
+  }
+  .store-expand-btn {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: none;
+    font-family: var(--font);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--black);
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s;
+  }
+  .store-expand-btn:hover { background: var(--yellow); }
+  .store-expand-btn:active { background: var(--grey); }
+
   /* Stores empty state */
   .stores-empty {
     text-align: center;
@@ -2892,8 +2922,8 @@ const favoriteStores = [
     emoji: '🛒',
     address: '6000 Rue Laurendeau, Montréal',
     placeId: 'ChIJpQZQAvMQyUwRt62TARvW1Fk',
-    lat: 45.4583,
-    lng: -73.5936,
+    lat: 45.458519,
+    lng: -73.588198,
     keywords: ['maxi'],
   },
   {
@@ -2902,48 +2932,48 @@ const favoriteStores = [
     emoji: '🏬',
     address: '300 Rue Bridge, Montréal',
     placeId: 'ChIJ6Q2dFo8ayUwR8yZvcQOC0w8',
-    lat: 45.4891,
-    lng: -73.5683,
+    lat: 45.485927,
+    lng: -73.553570,
     keywords: ['costco'],
   },
   {
-    id: 'iga_local',
-    name: 'IGA',
+    id: 'iga_wellington',
+    name: 'IGA Wellington',
     emoji: '🥦',
-    address: 'IGA, Montréal',
-    placeId: 'ChIJmcvFWaYayUwRb4A5bShIRBw',
-    lat: 45.5048,
-    lng: -73.5772,
+    address: '4500 Rue Wellington, Verdun',
+    placeId: 'ChIJN3RmpGcQyUwRtM09u7BrzT0',
+    lat: 45.459071,
+    lng: -73.567105,
     keywords: ['iga'],
   },
   {
     id: 'sami_fruit',
     name: 'Sami Fruits',
     emoji: '🍎',
-    address: 'Sami Fruits, Montréal',
-    placeId: 'ChIJ4Ts4l6AayUwRaqEj9fdpnzI',
-    lat: 45.5195,
-    lng: -73.5992,
+    address: '8200 19e Avenue, Montréal',
+    placeId: 'ChIJj3jJstoeyUwRvqA2WtNzlPo',
+    lat: 45.570459,
+    lng: -73.605956,
     keywords: ['sami', 'sami fruit', 'sami fruits'],
   },
   {
     id: 'pharmaprix',
     name: 'Pharmaprix',
     emoji: '💊',
-    address: 'Pharmaprix, Montréal',
-    placeId: 'ChIJK0cFUKEayUwRQST6b_dCR1E',
-    lat: 45.5137,
-    lng: -73.5718,
+    address: '4260 Wellington, Montréal',
+    placeId: 'ChIJpSsDjGYQyUwRTlPsIkzSq7U',
+    lat: 45.461203,
+    lng: -73.566867,
     keywords: ['pharmaprix', 'shoppers', 'pharmacie'],
   },
   {
     id: 'dollarama',
     name: 'Dollarama',
     emoji: '💰',
-    address: 'Dollarama, Montréal',
-    placeId: 'ChIJi4r4t6AayUwREE2WIqivEww',
-    lat: 45.5221,
-    lng: -73.5965,
+    address: '4041 Rue Wellington, Verdun',
+    placeId: 'ChIJJZfMvdCQoEwRGAq2k0Fto-w',
+    lat: 45.463248,
+    lng: -73.567373,
     keywords: ['dollarama', 'dollar'],
   },
 ];
@@ -3020,19 +3050,17 @@ async function fetchStoreHours(store) {
   }
 
   try {
-    // Use Places API Place Details (fields: opening_hours)
-    const targetUrl = encodeURIComponent(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${store.placeId}&fields=opening_hours,name&key=${PLACES_API_KEY}`);
-    const url = `https://corsproxy.io/?${targetUrl}`;
+    // Places API v1 — supports CORS natively, no proxy needed
+    const url = `https://places.googleapis.com/v1/places/${store.placeId}?fields=currentOpeningHours,regularOpeningHours&key=${PLACES_API_KEY}`;
     const res = await fetch(url);
     const data = await res.json();
 
-    if (data.status !== 'OK') throw new Error(data.status);
+    if (data.error) throw new Error(data.error.message || data.error.status);
 
-    const oh = data.result?.opening_hours;
+    const oh = data.currentOpeningHours || data.regularOpeningHours || {};
     const result = {
-      open_now: oh?.open_now ?? null,
-      periods: oh?.periods ?? [],
-      weekday_text: oh?.weekday_text ?? [],
+      open_now: oh.openNow ?? null,
+      weekday_text: oh.weekdayDescriptions ?? [],
       fetched_at: Date.now(),
     };
     storeHoursCache[store.placeId] = result;
@@ -3122,7 +3150,9 @@ function renderStores() {
          </span>`
       : '';
 
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.name + ' ' + store.address)}&query_place_id=${store.placeId}`;
+    // Use lat,lng directly — most reliable, opens exact pin on all devices
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${store.lat},${store.lng}&query_place_id=${store.placeId}`;
+    const wazeUrl = `https://waze.com/ul?ll=${store.lat},${store.lng}&navigate=yes`;
 
     return `
       <div class="store-card ${isDetected ? 'detected' : ''}">
@@ -3137,10 +3167,21 @@ function renderStores() {
               ${hoursBadge}
             </div>
           </div>
-          <a class="store-map-btn" href="${mapsUrl}" target="_blank" rel="noopener">
-            <span class="store-map-icon">🗺️</span>
-            <span>${t('stores_map')}</span>
-          </a>
+          <div class="store-actions">
+            <a class="store-map-btn" href="${mapsUrl}" target="_blank" rel="noopener">
+              <span class="store-map-icon">🗺️</span>
+              <span>MAP</span>
+            </a>
+            <a class="store-map-btn" href="${wazeUrl}" target="_blank" rel="noopener" style="border-top:var(--border);">
+              <span class="store-map-icon">🚗</span>
+              <span>WAZE</span>
+            </a>
+          </div>
+        </div>
+        <div class="store-expand-row">
+          <button class="store-expand-btn" onclick="event.stopPropagation();expandBranches('${escHtml(store.name)}')">
+            📍 ${t('stores_expand_branches') || 'FIND MORE ' + store.name.toUpperCase() + ' LOCATIONS'}
+          </button>
         </div>
       </div>`;
   }).join('');
@@ -3179,27 +3220,34 @@ const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models
 async function expandBranches(storeName) {
   if (userLat === null) { showToast('LOCATE FIRST'); return; }
   showToast('SEARCHING ' + storeName.toUpperCase() + '...');
-  const targetUrl = encodeURIComponent(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(storeName)}&location=${userLat},${userLng}&radius=50000&key=${PLACES_API_KEY}`);
-  const url = `https://corsproxy.io/?${targetUrl}`;
   try {
-    const res = await fetch(url);
+    // Places API v1 Text Search — CORS supported natively
+    const res = await fetch(`https://places.googleapis.com/v1/places:searchText?key=${PLACES_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.location' },
+      body: JSON.stringify({
+        textQuery: storeName,
+        locationBias: { circle: { center: { latitude: userLat, longitude: userLng }, radius: 50000 } },
+        maxResultCount: 10
+      })
+    });
     const data = await res.json();
-    if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') throw new Error(data.status);
+    if (data.error) throw new Error(data.error.message);
     const existingIds = new Set(favoriteStores.map(s => s.placeId));
-    const newBranches = (data.results || []).filter(p => !existingIds.has(p.place_id));
+    const newBranches = (data.places || []).filter(p => !existingIds.has(p.id));
     if (!newBranches.length) { showToast('NO NEW BRANCHES FOUND'); return; }
     newBranches.forEach(p => {
       favoriteStores.push({
-        id: p.place_id, name: p.name, emoji: '📍',
-        address: p.formatted_address, placeId: p.place_id,
-        lat: p.geometry.location.lat, lng: p.geometry.location.lng,
+        id: p.id, name: p.displayName?.text || storeName, emoji: '📍',
+        address: p.formattedAddress || '', placeId: p.id,
+        lat: p.location?.latitude || userLat, lng: p.location?.longitude || userLng,
         keywords: [storeName.toLowerCase()]
       });
-      detectedStoreIds.add(p.place_id);
+      detectedStoreIds.add(p.id);
     });
     renderStores();
-    showToast('+' + newBranches.length + ' BRANCHES FOUND');
-  } catch(err) { console.error(err); showToast('SEARCH ERROR'); }
+    showToast('+' + newBranches.length + ' LOCATIONS FOUND');
+  } catch(err) { console.error(err); showToast('SEARCH ERROR: ' + err.message?.slice(0,60)); }
 }
 window.expandBranches = expandBranches;
 
