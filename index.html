@@ -879,6 +879,8 @@
   .store-map-btn:hover { background: #FFF8D0; }
   .store-map-btn:active { background: var(--grey); }
   .store-map-icon { font-size: 22px; }
+  .store-call-btn { background: #E8F5E9; }
+  .store-call-btn:hover { background: #C8E6C9; }
 
   /* Actions column (map + waze stacked) */
   .store-actions {
@@ -2924,6 +2926,7 @@ const favoriteStores = [
     placeId: 'ChIJpQZQAvMQyUwRt62TARvW1Fk',
     lat: 45.458519,
     lng: -73.588198,
+    phone: '+15147667367',
     keywords: ['maxi'],
   },
   {
@@ -2934,6 +2937,7 @@ const favoriteStores = [
     placeId: 'ChIJ6Q2dFo8ayUwR8yZvcQOC0w8',
     lat: 45.485927,
     lng: -73.553570,
+    phone: '+15149385170',
     keywords: ['costco'],
   },
   {
@@ -2944,6 +2948,7 @@ const favoriteStores = [
     placeId: 'ChIJN3RmpGcQyUwRtM09u7BrzT0',
     lat: 45.459071,
     lng: -73.567105,
+    phone: '+15147667540',
     keywords: ['iga'],
   },
   {
@@ -2954,6 +2959,7 @@ const favoriteStores = [
     placeId: 'ChIJj3jJstoeyUwRvqA2WtNzlPo',
     lat: 45.570459,
     lng: -73.605956,
+    phone: '+15145931333',
     keywords: ['sami', 'sami fruit', 'sami fruits'],
   },
   {
@@ -2964,6 +2970,7 @@ const favoriteStores = [
     placeId: 'ChIJpSsDjGYQyUwRTlPsIkzSq7U',
     lat: 45.461203,
     lng: -73.566867,
+    phone: '+15147650444',
     keywords: ['pharmaprix', 'shoppers', 'pharmacie'],
   },
   {
@@ -2974,7 +2981,52 @@ const favoriteStores = [
     placeId: 'ChIJJZfMvdCQoEwRGAq2k0Fto-w',
     lat: 45.463248,
     lng: -73.567373,
+    phone: '+18883654266',
     keywords: ['dollarama', 'dollar'],
+  },
+  {
+    id: 'homedepot',
+    name: 'Home Depot',
+    emoji: '🔨',
+    address: '4625 Rue Saint-Antoine O, Montréal',
+    placeId: 'ChIJ32-HtZgQyUwRA6Q5z2x8vnI',
+    lat: 45.476283,
+    lng: -73.593546,
+    phone: '+15148464770',
+    keywords: ['home depot', 'homedepot', 'depot'],
+  },
+  {
+    id: 'rona_ndg',
+    name: 'RONA+',
+    emoji: '🪚',
+    address: '7277 Rue Saint-Jacques, Montréal (NDG)',
+    placeId: 'ChIJ_ydC0ywXyUwRip9qyKQ4EhA',
+    lat: 45.455694,
+    lng: -73.634975,
+    phone: '+15144827627',
+    keywords: ['rona', 'rona+'],
+  },
+  {
+    id: 'patrick_morin',
+    name: 'Patrick Morin',
+    emoji: '🪵',
+    address: '5880 Bd Taschereau, Brossard',
+    placeId: 'ChIJhdgETEoFyUwRfT3MToSkgk4',
+    lat: 45.476180,
+    lng: -73.467591,
+    phone: '+14506180230',
+    keywords: ['patrick morin', 'patrick', 'morin'],
+  },
+  {
+    id: 'canac',
+    name: 'Canac',
+    emoji: '🏗️',
+    address: '600 Bd des Prés-Verts, La Prairie',
+    placeId: 'ChIJQ-nYZFUPyUwReXjF0meOWMY',
+    lat: 45.408626,
+    lng: -73.459621,
+    phone: '+14504444389',
+    keywords: ['canac'],
   },
 ];
 
@@ -3176,6 +3228,10 @@ function renderStores() {
               <span class="store-map-icon">🚗</span>
               <span>WAZE</span>
             </a>
+            ${store.phone ? `<a class="store-map-btn store-call-btn" href="tel:${store.phone}" style="border-top:var(--border);">
+              <span class="store-map-icon">📞</span>
+              <span>CALL</span>
+            </a>` : ''}
           </div>
         </div>
         <div class="store-expand-row">
