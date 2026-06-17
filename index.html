@@ -3031,8 +3031,8 @@ const favoriteStores = [
 ];
 
 // ── STORES STATE ─────────────────────────────────────────────
-let userLat = null;
-let userLng = null;
+let userLat = 46.0697;  // Chertsey, QC default
+let userLng = -73.8811;
 let locationStatus = 'idle'; // idle | locating | located | denied
 let detectedStoreIds = new Set(); // store IDs mentioned in latest Gemini result
 let storeHoursCache = {}; // placeId → { open_now, closing_time, fetched_at }
