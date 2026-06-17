@@ -2020,6 +2020,8 @@ const appConfig = {
   bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
 };
 
+const THEMES = ['default', 'night', 'hico', 'warm'];
+
 // ── LANGUAGE STATE ──────────────────────────────────────────
 // Default to French (Dad is in Montréal)
 let uiLang = localStorage.getItem('dadapp_lang') || 'fr';
@@ -3206,7 +3208,6 @@ function onSettingLang(lang) {
 
 // ── THEME SYSTEM ────────────────────────────────────────────
 
-const THEMES = ['default', 'night', 'hico', 'warm'];
 
 function applyTheme(theme) {
   appConfig.theme = theme;
