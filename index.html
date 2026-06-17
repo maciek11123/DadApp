@@ -1468,21 +1468,6 @@
     <div class="view" id="view-settings">
       <div class="settings-card">
 
-        <!-- TOGGLE ROW: Show Pop-up After Calls -->
-        <div class="settings-row">
-          <div class="settings-row-label">
-            <span class="settings-row-icon">📞</span>
-            <span data-i18n="settings_popup_label"></span>
-          </div>
-          <label class="nb-toggle" title="Show pop-up after calls">
-            <input type="checkbox" id="settingCallPopup" onchange="onSettingToggleChange(this)">
-            <span class="nb-toggle-track">
-              <span class="nb-toggle-thumb"></span>
-            </span>
-          </label>
-        </div>
-
-        <div class="settings-divider"></div>
 
         <!-- LANGUAGE ROW -->
         <div class="settings-row settings-row-lang">
@@ -2217,7 +2202,6 @@ const I18N = {
 
 // ── APP CONFIG (persistent, Capacitor-bridgeable) ────────────
 const appConfig = {
-  showCallPopup: JSON.parse(localStorage.getItem('dadapp_showCallPopup') ?? 'true'),
   theme:   localStorage.getItem('dadapp_theme')   || 'default',
   bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
 };
@@ -3687,7 +3671,7 @@ renderAll();
 // (moved to top of script — see PHASE 6 section for full declaration)
 
 function saveAppConfig() {
-  localStorage.setItem('dadapp_showCallPopup', JSON.stringify(appConfig.showCallPopup));
+  // reserved for future config persistence
 }
 
 /**
@@ -3708,15 +3692,8 @@ function syncSettingToNativeAndroid(key, value) {
 
 // ── SETTINGS EVENT HANDLERS ──────────────────────────────────
 
-function onSettingToggleChange(checkbox) {
-  appConfig.showCallPopup = checkbox.checked;
-  saveAppConfig();
-  syncSettingToNativeAndroid('showCallPopup', checkbox.checked);
-  showToast(t('toast_setting_saved'));
-}
-
 function onSettingLang(lang) {
-  setUiLang(lang);         // existing Phase 4 function: saves, updates switcher, re-renders
+  setUiLang(lang);
   syncSettingToNativeAndroid('uiLang', lang);
   showToast(t('toast_setting_saved'));
 }
@@ -3756,10 +3733,6 @@ function onSettingBigMode(checkbox) {
 // ── RENDER SETTINGS TAB ──────────────────────────────────────
 
 function renderSettings() {
-  // Call popup toggle
-  const toggle = document.getElementById('settingCallPopup');
-  if (toggle) toggle.checked = appConfig.showCallPopup;
-
   // Lang buttons
   ['en', 'fr', 'pl'].forEach(lang => {
     const btn = document.getElementById('sLang' + lang.charAt(0).toUpperCase() + lang.slice(1));
