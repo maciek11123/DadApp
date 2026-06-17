@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dad App">
+<meta name="theme-color" content="#FFD600">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>DAD APP</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
@@ -1259,8 +1266,7 @@
         <button class="lang-btn" onclick="setUiLang('pl')">PL</button>
         <button class="lang-btn" onclick="setUiLang('en')">EN</button>
       </div>
-      <span>📶</span>
-      <span class="battery-badge">12</span>
+
     </div>
   </div>
 
@@ -1397,6 +1403,11 @@
         </div>
 
       </div><!-- /settings-card -->
+
+      <!-- INSTALL BUTTON -->
+      <button id="pwaInstallBtn" onclick="pwaInstall()" style="display:none;width:100%;padding:18px;background:var(--black);color:var(--bg);border:var(--border);font-family:var(--font);font-size:var(--fs-md);font-weight:700;letter-spacing:0.08em;cursor:pointer;margin-bottom:16px;align-items:center;justify-content:center;gap:10px;">
+        📲 <span data-i18n="btn_install"></span>
+      </button>
 
       <!-- ABOUT BLOCK -->
       <div class="settings-about">
@@ -1706,6 +1717,7 @@ const I18N = {
     settings_lang_label: "LANGUE DE L'APP",
     settings_about_sub: 'Phases 1–6 · Montréal',
     toast_setting_saved: 'PARAMÈTRE SAUVÉ ✓',
+    btn_install: 'INSTALLER L\'APPLICATION',
     nav_bring: 'APPORTER',
     nav_ledger: 'COMPTES',
     view_bring: 'LISTE COMMUNE',
@@ -1841,6 +1853,7 @@ const I18N = {
     settings_lang_label: 'JĘZYK APLIKACJI',
     settings_about_sub: 'Fazy 1–6 · Montreal',
     toast_setting_saved: 'USTAWIENIE ZAPISANE ✓',
+    btn_install: 'ZAINSTALUJ APLIKACJĘ',
     nav_bring: 'PRZYNIEŚ',
     nav_ledger: 'ROZLICZ',
     view_bring: 'WSPÓLNA LISTA',
@@ -1976,6 +1989,7 @@ const I18N = {
     settings_lang_label: 'APP LANGUAGE',
     settings_about_sub: 'Phases 1–6 · Montréal',
     toast_setting_saved: 'SETTING SAVED ✓',
+    btn_install: 'INSTALL APP',
     nav_bring: 'BRING',
     nav_ledger: 'LEDGER',
     view_bring: 'BRING LIST',
@@ -3474,6 +3488,31 @@ window.t = t;
 applyTheme(appConfig.theme);
 applyBigMode(appConfig.bigMode);
 window.t = t; // expose for Firebase module
+
+// ── PWA: Service Worker + Install Prompt ─────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .then(() => console.log('[SW] Registered'))
+    .catch(e => console.log('[SW] Error', e));
+}
+
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const btn = document.getElementById('pwaInstallBtn');
+  if (btn) btn.style.display = 'flex';
+});
+
+function pwaInstall() {
+  if (!_pwaPrompt) return;
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(() => {
+    _pwaPrompt = null;
+    const btn = document.getElementById('pwaInstallBtn');
+    if (btn) btn.style.display = 'none';
+  });
+}
 
 </script>
 </body>
