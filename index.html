@@ -49,7 +49,7 @@
     --fs-xl:  18px;
     --fs-2xl: 20px;
     --fs-3xl: 28px;
-    --fs-nav: 11px;
+    --fs-nav: 10px;
   }
 
   /* ── WARM PAPER THEME (Cream/Brown) ── */
@@ -77,19 +77,32 @@
 
   /* ── BIG MODE overrides ── */
   [data-big="1"] {
-    --fs-xs:  13px;
-    --fs-sm:  16px;
-    --fs-md:  18px;
-    --fs-lg:  21px;
-    --fs-xl:  24px;
-    --fs-2xl: 28px;
-    --fs-3xl: 36px;
-    --fs-nav: 12px;
+    --fs-xs:  14px;
+    --fs-sm:  17px;
+    --fs-md:  20px;
+    --fs-lg:  24px;
+    --fs-xl:  28px;
+    --fs-2xl: 34px;
+    --fs-3xl: 44px;
+    --fs-nav: 13px;
   }
-  [data-big="1"] .nav-icon { font-size: 24px !important; }
-  [data-big="1"] .nav-btn  { padding: 12px 4px 16px !important; min-height: 70px; }
-  [data-big="1"] .list-item { min-height: 90px; }
-  [data-big="1"] .item-check-zone { min-height: 90px; width: 80px; }
+  [data-big="1"] .nav-icon { font-size: 30px !important; }
+  [data-big="1"] .nav-btn  { padding: 14px 4px 18px !important; min-height: 80px; gap: 6px; }
+  [data-big="1"] .list-item { min-height: 100px; }
+  [data-big="1"] .item-check-zone { min-height: 100px; width: 90px; }
+  [data-big="1"] .item-check { width: 36px; height: 36px; font-size: 20px; }
+  [data-big="1"] .item-label { font-size: 20px !important; letter-spacing: 0.04em; }
+  [data-big="1"] .btn { font-size: 17px !important; padding: 18px 20px !important; min-height: 64px; }
+  [data-big="1"] .note-item { padding: 18px 16px !important; }
+  [data-big="1"] .note-title { font-size: 18px !important; }
+  [data-big="1"] .store-name { font-size: 22px !important; }
+  [data-big="1"] .store-address { font-size: 13px !important; }
+  [data-big="1"] .store-icon-zone { font-size: 36px !important; width: 76px !important; }
+  [data-big="1"] .store-map-btn { width: 68px !important; font-size: 11px !important; }
+  [data-big="1"] .store-map-icon { font-size: 28px !important; }
+  [data-big="1"] .tts-read-all-btn { font-size: 17px !important; min-height: 64px !important; }
+  [data-big="1"] #pageHeader { font-size: 28px !important; letter-spacing: 0.08em; }
+  [data-big="1"] .title-input { font-size: 18px !important; padding: 16px !important; }
 
   html, body {
     height: 100%;
@@ -278,7 +291,7 @@
     margin-bottom: 12px;
     cursor: pointer;
   }
-  .note-item:hover { background: #FFFDE7; }
+  .note-item:hover { background: var(--bg-card); }
   .note-item:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--black); }
   .note-item-title { font-size: var(--fs-md); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; color: var(--text); }
   .note-item-preview { font-size: var(--fs-sm); color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -345,7 +358,7 @@
   }
   .list-item:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px var(--black); }
   .list-item.checked { background: var(--grey); border-style: dashed; }
-  .list-item.checked .item-label { text-decoration: line-through; color: #888; }
+  .list-item.checked .item-label { text-decoration: line-through; color: var(--text-dim); }
 
   /* PHASE 4: Big fat check zone on the left */
   .item-check-zone {
@@ -397,7 +410,7 @@
     box-shadow: 2px 2px 0 var(--black);
   }
   .item-tts-btn:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--black); }
-  .item-tts-btn:hover { background: #FFF8D0; }
+  .item-tts-btn:hover { background: var(--bg-card); }
 
   /* Completed section divider */
   .done-divider {
@@ -477,7 +490,7 @@
   }
   .bill-item:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--black); }
   .bill-item.checked { background: var(--grey); border-style: dashed; }
-  .bill-item.checked .bill-name { text-decoration: line-through; color: #888; }
+  .bill-item.checked .bill-name { text-decoration: line-through; color: var(--text-dim); }
   .bill-check {
     width: 28px; height: 28px;
     border: var(--border);
@@ -535,16 +548,16 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 14px 4px 16px;
+    padding: 12px 2px 14px;
     cursor: pointer;
     border: none;
     background: none;
     color: var(--nav-text);
     font-family: var(--font);
     font-size: var(--fs-nav);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    gap: 3px;
+    gap: 5px;
     transition: background 0.1s;
     border-right: 2px solid rgba(255,255,255,0.12);
     white-space: nowrap;
@@ -552,7 +565,7 @@
   .nav-btn:last-child { border-right: none; }
   .nav-btn:hover { background: rgba(255,255,255,0.08); }
   .nav-btn.active { color: var(--nav-active); }
-  .nav-icon { font-size: 22px; line-height: 1; }
+  .nav-icon { font-size: 24px; line-height: 1; }
 
   /* ══════════════════════════════
      RECORDING MODAL
@@ -597,7 +610,7 @@
     0%, 100% { box-shadow: var(--shadow); }
     50% { box-shadow: 6px 6px 0px var(--black), 0 0 0 8px rgba(255,32,32,0.2); }
   }
-  .rec-status { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #555; margin-bottom: 20px; min-height: 18px; }
+  .rec-status { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 20px; min-height: 18px; }
   .modal-actions { display: flex; gap: 10px; }
 
   /* ══════════════════════════════
@@ -613,7 +626,7 @@
     animation: spin 0.7s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .thinking-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #555; }
+  .thinking-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); }
 
   /* ══════════════════════════════
      TRANSCRIPTION PANEL
@@ -654,7 +667,7 @@
   .lang-badge.en { background: #FFF3E0; }
   .lang-badge.unknown { background: var(--grey); }
   .tp-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
-  .tp-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(0,0,0,0.5); margin-bottom: 4px; }
+  .tp-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px; }
   .tp-card { background: var(--white); border: var(--border); box-shadow: var(--shadow); padding: 14px 16px; }
   .tp-transcription-text { font-size: 14px; line-height: 1.7; letter-spacing: 0.02em; white-space: pre-wrap; word-break: break-word; }
   .tp-followup-text { font-size: 13px; line-height: 1.6; font-weight: 700; letter-spacing: 0.04em; }
@@ -810,7 +823,7 @@
 
   .store-address {
     font-size: 10px;
-    color: #555;
+    color: var(--text-muted);
     letter-spacing: 0.05em;
     text-transform: uppercase;
     margin-bottom: 6px;
@@ -851,8 +864,8 @@
     letter-spacing: 0.06em;
     box-shadow: 2px 2px 0 var(--black);
   }
-  .store-hours-badge.open   { background: #E8F5E9; }
-  .store-hours-badge.closed { background: #FFEBEE; }
+  .store-hours-badge.open   { background: var(--green); color: var(--white); }
+  .store-hours-badge.closed { background: var(--grey); }
   .store-hours-badge.loading { background: var(--grey); }
 
   /* Map link button */
@@ -876,11 +889,11 @@
     color: var(--black);
     transition: background 0.1s;
   }
-  .store-map-btn:hover { background: #FFF8D0; }
+  .store-map-btn:hover { background: var(--bg-card); }
   .store-map-btn:active { background: var(--grey); }
   .store-map-icon { font-size: 22px; }
-  .store-call-btn { background: #E8F5E9; }
-  .store-call-btn:hover { background: #C8E6C9; }
+  .store-call-btn { background: var(--green); color: var(--white); }
+  .store-call-btn:hover { opacity: 0.85; }
 
   /* Actions column (map + waze stacked) */
   .store-actions {
@@ -1448,9 +1461,9 @@
         <div style="display:flex;gap:10px;margin-bottom:10px;">
           <input class="title-input" id="ledgerAmount" type="number" placeholder="$0.00" step="0.01" style="flex:1;">
           <select class="title-input" id="ledgerPaidBy" style="flex:1;cursor:pointer;">
-            <option value="me">Moi / Ja</option>
-            <option value="him">Lui / On</option>
-          </select>
+              <option value="me" data-i18n-opt="ledger_paid_by_me"></option>
+              <option value="him" data-i18n-opt="ledger_paid_by_him"></option>
+            </select>
         </div>
         <button class="btn btn-blue" style="width:100%;" onclick="ledgerAdd()" data-i18n-btn="btn_ledger_add"></button>
       </div>
@@ -2050,6 +2063,7 @@ function t(key, ...args) {
   const str = I18N[uiLang]?.[key] ?? I18N['en']?.[key] ?? key;
   return typeof str === 'function' ? str(...args) : str;
 }
+window.t = t; // expose early so Firebase module callbacks have it immediately
 
 function setUiLang(lang) {
   uiLang = lang;
@@ -2100,6 +2114,11 @@ function applyI18n() {
   if (bringInp) bringInp.placeholder = t('bring_input_placeholder');
   const ledgerDescInp = document.getElementById('ledgerDesc');
   if (ledgerDescInp) ledgerDescInp.placeholder = t('ledger_desc_placeholder');
+
+  // data-i18n-opt select options
+  document.querySelectorAll('[data-i18n-opt]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n-opt'));
+  });
 
   // data-i18n-btn buttons
   document.querySelectorAll('[data-i18n-btn]').forEach(btn => {
