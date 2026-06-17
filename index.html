@@ -2562,6 +2562,7 @@ function stopRecording() {
 // PHASE 3 — GEMINI AUDIO PIPELINE (unchanged, now trilingual)
 // ═══════════════════════════════════════════════════════════
 let geminiResult = null;
+let geminiAttempted = false;
 
 async function sendToGemini() {
   if (!audioChunks.length) return;
@@ -2574,6 +2575,15 @@ async function sendToGemini() {
     document.getElementById('thinkingLabel').textContent = t('thinking_sending');
     const base64Audio = await blobToBase64(blob);
     const audioData = base64Audio.split(',')[1];
+    // Detect actual MIME type recorded by this device
+    const mimeType = blob.type || 'audio/webm';
+    // Gemini only accepts: audio/wav, audio/mp3, audio/aiff, audio/aac, audio/ogg, audio/flac, audio/webm
+    // Map mp4 → aac which Gemini accepts
+    const geminiMime = mimeType.includes('mp4') ? 'audio/mp4'
+                     : mimeType.includes('ogg') ? 'audio/ogg'
+                     : mimeType.includes('aac') ? 'audio/aac'
+                     : mimeType.includes('webm') ? 'audio/webm'
+                     : 'audio/webm';
 
     const systemPrompt = `You are a transcription assistant for a bilingual family app used by a French-Canadian father.
 Audio notes are spoken in Polish (pl), French (fr), or English (en).
@@ -2616,7 +2626,7 @@ Rules:
       system_instruction: { parts: [{ text: systemPrompt }] },
       contents: [{
         parts: [
-          { inline_data: { mime_type: 'audio/webm', data: audioData } },
+          { inline_data: { mime_type: geminiMime, data: audioData } },
           { text: 'Transcribe and analyze this audio note.' }
         ]
       }],
@@ -2624,7 +2634,7 @@ Rules:
     };
 
     document.getElementById('thinkingLabel').textContent = t('thinking_analysing');
-    const response = await fetch(`${GEMINI_ENDPOINT}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`${GEMINI_ENDPOINT}?key=${getGeminiKey()}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
@@ -2665,8 +2675,14 @@ Rules:
     console.error('Gemini pipeline error:', err);
     document.getElementById('geminiThinking').classList.remove('visible');
     document.getElementById('recUI').style.display = 'block';
-    showToast(t('toast_gemini_err'));
-    savePlainAudioNote();
+    // Show detailed error in toast if available
+    const errMsg = err.message?.slice(0, 120) || t('toast_gemini_err');
+    showToast('❌ ' + errMsg);
+    // Only save as audio note if we haven't already saved one for this recording
+    if (!geminiAttempted) {
+      geminiAttempted = true;
+      savePlainAudioNote();
+    }
   }
 }
 
@@ -3153,7 +3169,8 @@ function renderStores() {
 }
 
 // ── CONFIG ─────────────────────────────────────────────────
-const GEMINI_API_KEY = window.DAD_CONFIG?.GEMINI_API_KEY || '';
+// GEMINI_API_KEY read at call time (DAD_CONFIG loaded async)
+function getGeminiKey() { return window.DAD_CONFIG?.GEMINI_API_KEY || ''; }
 const GEMINI_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 // ── CAPACITOR BRIDGE ───────────────────────────────────────
