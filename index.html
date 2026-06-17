@@ -2185,9 +2185,11 @@ function renderNotes() {
     return;
   }
   el.innerHTML = state.notes.map((n, i) => `
-    <div class="note-item" onclick="loadNote(${i})">
+    <div class="note-item" onclick="${n.audioUrl ? '' : `loadNote(${i})`}">
       <div class="note-item-title">${escHtml(n.title || '(UNTITLED)')}</div>
-      ${n.body ? `<div class="note-item-preview">${escHtml(n.body)}</div>` : ''}
+      ${n.audioUrl ? `
+        <audio controls src="${n.audioUrl}" style="width:100%;margin-top:8px;height:36px;" onclick="event.stopPropagation()"></audio>
+      ` : n.body ? `<div class="note-item-preview">${escHtml(n.body)}</div>` : ''}
       <div class="note-item-meta">${n.date}</div>
     </div>
   `).join('');
