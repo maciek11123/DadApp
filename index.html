@@ -120,23 +120,28 @@
     --fs-3xl: 44px;
     --fs-nav: 13px;
   }
-  [data-big="1"] .nav-icon { font-size: 30px !important; }
-  [data-big="1"] .nav-btn  { padding: 14px 4px 18px !important; min-height: 80px; gap: 6px; }
-  [data-big="1"] .list-item { min-height: 100px; }
-  [data-big="1"] .item-check-zone { min-height: 100px; width: 90px; }
-  [data-big="1"] .item-check { width: 36px; height: 36px; font-size: 20px; }
-  [data-big="1"] .item-label { font-size: 20px !important; letter-spacing: 0.04em; }
-  [data-big="1"] .btn { font-size: 17px !important; padding: 18px 20px !important; min-height: 64px; }
-  [data-big="1"] .note-item { padding: 18px 16px !important; }
-  [data-big="1"] .note-title { font-size: 18px !important; }
-  [data-big="1"] .store-name { font-size: 22px !important; }
-  [data-big="1"] .store-address { font-size: 13px !important; }
-  [data-big="1"] .store-icon-zone { font-size: 36px !important; width: 76px !important; }
-  [data-big="1"] .store-map-btn { width: 68px !important; font-size: 11px !important; }
-  [data-big="1"] .store-map-icon { font-size: 28px !important; }
-  [data-big="1"] .tts-read-all-btn { font-size: 17px !important; min-height: 64px !important; }
-  [data-big="1"] #pageHeader { font-size: 28px !important; letter-spacing: 0.08em; }
-  [data-big="1"] .title-input { font-size: 18px !important; padding: 16px !important; }
+  :is([data-big="1"], [data-big="2"]) .nav-icon { font-size: 30px !important; }
+  :is([data-big="1"], [data-big="2"]) .nav-btn  { padding: 14px 4px 18px !important; min-height: 80px; gap: 6px; }
+  :is([data-big="1"], [data-big="2"]) .list-item { min-height: 100px; }
+  :is([data-big="1"], [data-big="2"]) .item-check-zone { min-height: 100px; width: 90px; }
+  :is([data-big="1"], [data-big="2"]) .item-check { width: 36px; height: 36px; font-size: 20px; }
+  :is([data-big="1"], [data-big="2"]) .item-label { font-size: 20px !important; letter-spacing: 0.04em; }
+  :is([data-big="1"], [data-big="2"]) .btn { font-size: 17px !important; padding: 18px 20px !important; min-height: 64px; }
+  :is([data-big="1"], [data-big="2"]) .note-item { padding: 18px 16px !important; }
+  :is([data-big="1"], [data-big="2"]) .note-title { font-size: 18px !important; }
+  :is([data-big="1"], [data-big="2"]) .store-name { font-size: 22px !important; }
+  :is([data-big="1"], [data-big="2"]) .store-address { font-size: 13px !important; }
+  :is([data-big="1"], [data-big="2"]) .store-icon-zone { font-size: 36px !important; width: 76px !important; }
+  :is([data-big="1"], [data-big="2"]) .store-map-btn { width: 68px !important; font-size: 11px !important; }
+  :is([data-big="1"], [data-big="2"]) .store-map-icon { font-size: 28px !important; }
+  :is([data-big="1"], [data-big="2"]) .tts-read-all-btn { font-size: 17px !important; min-height: 64px !important; }
+  :is([data-big="1"], [data-big="2"]) #pageHeader { font-size: 28px !important; letter-spacing: 0.08em; }
+  :is([data-big="1"], [data-big="2"]) .title-input { font-size: 18px !important; padding: 16px !important; }
+  :is([data-big="1"], [data-big="2"]) .ledger-item { padding: 18px 20px !important; min-height: 80px; }
+  :is([data-big="1"], [data-big="2"]) .ledger-item-desc { font-size: 18px !important; }
+  :is([data-big="1"], [data-big="2"]) .ledger-item-meta { font-size: 13px !important; }
+  :is([data-big="1"], [data-big="2"]) .ledger-item-amount { font-size: 22px !important; }
+  :is([data-big="1"], [data-big="2"]) .ledger-settle-btn { padding: 10px 14px !important; font-size: 13px !important; white-space: nowrap !important; }
 
   /* ── HUGE MODE overrides (Jumbo size for elderly users) ── */
   [data-big="2"] {
@@ -168,6 +173,11 @@
   [data-big="2"] .title-input { font-size: 24px !important; padding: 22px !important; }
   [data-big="2"] .settings-theme-btn { width: 70px; height: 70px; font-size: 32px; }
   [data-big="2"] .settings-lang-btn { font-size: 18px; padding: 22px 6px; }
+  [data-big="2"] .ledger-item { padding: 22px 26px !important; min-height: 120px; gap: 16px; }
+  [data-big="2"] .ledger-item-desc { font-size: 24px !important; }
+  [data-big="2"] .ledger-item-meta { font-size: 18px !important; }
+  [data-big="2"] .ledger-item-amount { font-size: 30px !important; }
+  [data-big="2"] .ledger-settle-btn { padding: 14px 20px !important; font-size: 18px !important; white-space: nowrap !important; }
 
   html, body {
     height: 100%;
@@ -1508,15 +1518,15 @@
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:10px;padding-bottom:18px;">
           <div class="settings-row-label">
             <span class="settings-row-icon">👤</span>
-            <span style="font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">WHO ARE YOU?</span>
+            <span style="font-weight:700;font-size:var(--fs-sm);letter-spacing:0.1em;text-transform:uppercase;">WHO ARE YOU?</span>
           </div>
           <div style="display:flex;gap:0;border:3px solid var(--black);box-shadow:3px 3px 0 var(--black);">
             <button id="userMaciek" onclick="onSettingUser('maciek')"
-              style="flex:1;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;border-right:3px solid var(--black);background:var(--white);color:var(--black);cursor:pointer;">
+              style="flex:1;font-family:var(--font);font-size:var(--fs-md);font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;border-right:3px solid var(--black);background:var(--white);color:var(--black);cursor:pointer;">
               👦 MACIEK
             </button>
             <button id="userDad" onclick="onSettingUser('dad')"
-              style="flex:1;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;background:var(--white);color:var(--black);cursor:pointer;">
+              style="flex:1;font-family:var(--font);font-size:var(--fs-md);font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;background:var(--white);color:var(--black);cursor:pointer;">
               👨 DAD
             </button>
           </div>
@@ -1558,19 +1568,19 @@
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:10px;">
           <div class="settings-row-label">
             <span class="settings-row-icon">🔠</span>
-            <span style="font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">TEXT & BUTTON SIZE</span>
+            <span style="font-weight:700;font-size:var(--fs-sm);letter-spacing:0.1em;text-transform:uppercase;">TEXT & BUTTON SIZE</span>
           </div>
           <div style="display:flex;gap:0;border:3px solid var(--black);box-shadow:3px 3px 0 var(--black);">
             <button id="sizeNormal" onclick="onSettingSize('0')"
-              style="flex:1;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;border-right:3px solid var(--black);background:var(--white);color:var(--black);cursor:pointer;">
+              style="flex:1;font-family:var(--font);font-size:var(--fs-md);font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;border-right:3px solid var(--black);background:var(--white);color:var(--black);cursor:pointer;">
               Normal
             </button>
             <button id="sizeLarge" onclick="onSettingSize('1')"
-              style="flex:1;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;border-right:3px solid var(--black);background:var(--white);color:var(--black);cursor:pointer;">
+              style="flex:1;font-family:var(--font);font-size:var(--fs-md);font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;border-right:3px solid var(--black);background:var(--white);color:var(--black);cursor:pointer;">
               Large
             </button>
             <button id="sizeHuge" onclick="onSettingSize('2')"
-              style="flex:1;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;background:var(--white);color:var(--black);cursor:pointer;">
+              style="flex:1;font-family:var(--font);font-size:var(--fs-md);font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;background:var(--white);color:var(--black);cursor:pointer;">
               Huge
             </button>
           </div>
@@ -1585,10 +1595,10 @@
             <span class="settings-row-icon">🔥</span>
             <span style="font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:var(--fs-sm);">FIREBASE DATABASE</span>
           </div>
-          <div style="font-size:11px;color:var(--text-muted);letter-spacing:0.04em;line-height:1.5;">
+          <div style="font-size:var(--fs-sm);color:var(--text-muted);letter-spacing:0.04em;line-height:1.5;">
             Access the Firebase Console to manage database storage, extend retention settings, or view usage analytics.
           </div>
-          <a class="btn btn-blue" href="https://console.firebase.google.com/project/dad-app-c3920/firestore" target="_blank" rel="noopener noreferrer" style="width:100%;font-size:13px;text-align:center;text-decoration:none;display:inline-block;box-sizing:border-box;">
+          <a class="btn btn-blue" href="https://console.firebase.google.com/project/dad-app-c3920/firestore" target="_blank" rel="noopener noreferrer" style="width:100%;font-size:var(--fs-md);text-align:center;text-decoration:none;display:inline-block;box-sizing:border-box;">
             🌐 OPEN FIREBASE CONSOLE
           </a>
         </div>
