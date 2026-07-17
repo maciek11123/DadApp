@@ -85,7 +85,7 @@
     --shadow: 4px 4px 0px #000000;
     --border: 3px solid #000000;
 
-    --bg:        #FFFFFF;
+    --bg:        #F0F0F0; /* Light grey instead of white for contrast */
     --bg-card:   #FFFFFF;
     --text:      #000000;
     --text-dim:  rgba(0,0,0,0.4);
@@ -137,6 +137,37 @@
   [data-big="1"] .tts-read-all-btn { font-size: 17px !important; min-height: 64px !important; }
   [data-big="1"] #pageHeader { font-size: 28px !important; letter-spacing: 0.08em; }
   [data-big="1"] .title-input { font-size: 18px !important; padding: 16px !important; }
+
+  /* ── HUGE MODE overrides (Jumbo size for elderly users) ── */
+  [data-big="2"] {
+    --fs-xs:  18px;
+    --fs-sm:  22px;
+    --fs-md:  26px;
+    --fs-lg:  30px;
+    --fs-xl:  36px;
+    --fs-2xl: 42px;
+    --fs-3xl: 52px;
+    --fs-nav: 15px;
+  }
+  [data-big="2"] .nav-icon { font-size: 38px !important; }
+  [data-big="2"] .nav-btn  { padding: 18px 4px 22px !important; min-height: 105px; gap: 8px; }
+  [data-big="2"] .list-item { min-height: 130px; }
+  [data-big="2"] .item-check-zone { min-height: 130px; width: 110px; }
+  [data-big="2"] .item-check { width: 48px; height: 48px; font-size: 28px; }
+  [data-big="2"] .item-label { font-size: 26px !important; letter-spacing: 0.04em; font-weight: bold; }
+  [data-big="2"] .btn { font-size: 22px !important; padding: 22px 24px !important; min-height: 80px; }
+  [data-big="2"] .note-item { padding: 24px 20px !important; }
+  [data-big="2"] .note-title { font-size: 24px !important; }
+  [data-big="2"] .store-name { font-size: 28px !important; }
+  [data-big="2"] .store-address { font-size: 17px !important; }
+  [data-big="2"] .store-icon-zone { font-size: 48px !important; width: 100px !important; }
+  [data-big="2"] .store-map-btn { width: 90px !important; font-size: 15px !important; }
+  [data-big="2"] .store-map-icon { font-size: 36px !important; }
+  [data-big="2"] .tts-read-all-btn { font-size: 22px !important; min-height: 80px !important; }
+  [data-big="2"] #pageHeader { font-size: 36px !important; letter-spacing: 0.08em; }
+  [data-big="2"] .title-input { font-size: 24px !important; padding: 22px !important; }
+  [data-big="2"] .settings-theme-btn { width: 70px; height: 70px; font-size: 32px; }
+  [data-big="2"] .settings-lang-btn { font-size: 18px; padding: 22px 6px; }
 
   html, body {
     height: 100%;
@@ -597,7 +628,10 @@
   }
   .nav-btn:last-child { border-right: none; }
   .nav-btn:hover { background: rgba(255,255,255,0.08); }
-  .nav-btn.active { color: var(--nav-active); }
+  .nav-btn.active, .nav-btn.active .nav-icon {
+    background: var(--yellow) !important;
+    color: var(--black) !important;
+  }
   .nav-icon { font-size: 24px; line-height: 1; }
   /* Nav label — hidden by default, show only if enough room */
   .nav-label {
@@ -1520,39 +1554,43 @@
 
         <div class="settings-divider"></div>
 
-        <!-- BIG MODE ROW -->
-        <div class="settings-row">
+        <!-- TEXT SIZE ROW -->
+        <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:10px;">
           <div class="settings-row-label">
             <span class="settings-row-icon">🔠</span>
-            <span data-i18n="settings_bigmode_label"></span>
+            <span style="font-weight:700;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">TEXT & BUTTON SIZE</span>
           </div>
-          <label class="nb-toggle" title="Big mode">
-            <input type="checkbox" id="settingBigMode" onchange="onSettingBigMode(this)">
-            <span class="nb-toggle-track">
-              <span class="nb-toggle-thumb"></span>
-            </span>
-          </label>
+          <div style="display:flex;gap:0;border:3px solid var(--black);box-shadow:3px 3px 0 var(--black);">
+            <button id="sizeNormal" onclick="onSettingSize('0')"
+              style="flex:1;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;border-right:3px solid var(--black);background:var(--white);color:var(--black);cursor:pointer;">
+              Normal
+            </button>
+            <button id="sizeLarge" onclick="onSettingSize('1')"
+              style="flex:1;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;border-right:3px solid var(--black);background:var(--white);color:var(--black);cursor:pointer;">
+              Large
+            </button>
+            <button id="sizeHuge" onclick="onSettingSize('2')"
+              style="flex:1;font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:0.06em;padding:16px 4px;border:none;background:var(--white);color:var(--black);cursor:pointer;">
+              Huge
+            </button>
+          </div>
         </div>
 
       </div><!-- /settings-card -->
 
-      <!-- CUBEACR IMPORT -->
+      <!-- FIREBASE CONTROL -->
       <div class="settings-card" style="margin-top:14px;">
         <div class="settings-row" style="flex-direction:column;align-items:stretch;gap:12px;">
           <div class="settings-row-label">
-            <span class="settings-row-icon">📞</span>
-            <span style="font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:var(--fs-sm);">CUBE ACR</span>
+            <span class="settings-row-icon">🔥</span>
+            <span style="font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:var(--fs-sm);">FIREBASE DATABASE</span>
           </div>
           <div style="font-size:11px;color:var(--text-muted);letter-spacing:0.04em;line-height:1.5;">
-            Import call recordings from CubeACR into your notes. Pick the CubeACR folder once — the app remembers it.
+            Access the Firebase Console to manage database storage, extend retention settings, or view usage analytics.
           </div>
-          <button class="btn" style="background:var(--black);color:var(--bg);width:100%;font-size:13px;" onclick="cubePickFolder()">
-            📁 SELECT CUBEACR FOLDER
-          </button>
-          <button class="btn btn-blue" style="width:100%;font-size:13px;" onclick="cubeImport()" id="cubeImportBtn">
-            ⬇️ IMPORT NEW RECORDINGS
-          </button>
-          <div id="cubeStatus" style="font-size:11px;color:var(--text-muted);letter-spacing:0.04em;min-height:16px;"></div>
+          <a class="btn btn-blue" href="https://console.firebase.google.com/project/dad-app-c3920/firestore" target="_blank" rel="noopener noreferrer" style="width:100%;font-size:13px;text-align:center;text-decoration:none;display:inline-block;box-sizing:border-box;">
+            🌐 OPEN FIREBASE CONSOLE
+          </a>
         </div>
       </div>
 
@@ -1745,6 +1783,66 @@ window.DAD_CONFIG = {
 };
 </script>
 
+<!-- Notifications and Audio Chime helpers -->
+<script>
+  function playNotificationSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const now = ctx.currentTime;
+      // Chime 1 (D5)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(587.33, now);
+      gain1.gain.setValueAtTime(0.08, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.3);
+      
+      // Chime 2 (A5)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(880, now + 0.12);
+      gain2.gain.setValueAtTime(0.08, now + 0.12);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.12);
+      osc2.stop(now + 0.45);
+    } catch (e) {
+      console.warn("Audio chime failed:", e);
+    }
+  }
+
+  function triggerNotification(message) {
+    if (window.showToast) {
+      window.showToast(message);
+    }
+    playNotificationSound();
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification('Dad App', {
+          body: message,
+          icon: 'icon-192.png'
+        });
+      } catch (e) {
+        console.warn('Native notification failed:', e);
+      }
+    }
+  }
+
+  // Request permission on boot
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  window.playNotificationSound = playNotificationSound;
+  window.triggerNotification = triggerNotification;
+</script>
+
 <!-- Firebase SDK (CDN, compat v9 modular) -->
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -1760,22 +1858,93 @@ window.DAD_CONFIG = {
   window._fb = { db, collection, addDoc, onSnapshot, doc, updateDoc, query, orderBy, serverTimestamp };
 
   // ── BRING LIST listener ─────────────────────────────────────
+  let bringInitialLoad = true;
   const bringQ = query(collection(db, 'bringlist'), orderBy('createdAt', 'desc'));
   onSnapshot(bringQ, (snap) => {
-    window._bringDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const newDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Notification check
+    if (!bringInitialLoad && window._bringDocs && window._bringDocs.length > 0) {
+      const oldDocsMap = new Map(window._bringDocs.map(d => [d.id, d]));
+      newDocs.forEach(newDoc => {
+        const actorId = newDoc.addedBy || newDoc.modifiedBy || 'user';
+        const actorName = window.t ? window.t('user_' + actorId) : actorId;
+        const curUser = window.appConfig?.user || 'maciek';
+
+        if (!oldDocsMap.has(newDoc.id)) {
+          // Newly added item
+          if (newDoc.addedBy && newDoc.addedBy !== curUser && !newDoc.deleted) {
+            window.triggerNotification && window.triggerNotification(window.t('notif_added_bring', actorName, newDoc.text));
+          }
+        } else {
+          const oldDoc = oldDocsMap.get(newDoc.id);
+          // Check if deleted changed to true
+          if (newDoc.deleted && !oldDoc.deleted) {
+            if (newDoc.modifiedBy && newDoc.modifiedBy !== curUser) {
+              window.triggerNotification && window.triggerNotification(window.t('notif_deleted_bring', actorName, newDoc.text));
+            }
+          }
+          // Check if packed changed
+          else if (newDoc.packed !== oldDoc.packed && !newDoc.deleted) {
+            if (newDoc.modifiedBy && newDoc.modifiedBy !== curUser) {
+              window.triggerNotification && window.triggerNotification(window.t('notif_packed_bring', actorName, newDoc.text, newDoc.packed));
+            }
+          }
+        }
+      });
+    }
+
+    window._bringDocs = newDocs;
+    bringInitialLoad = false;
     window.renderBring && window.renderBring();
+    
     // Show live dot on nav if there are unpacked items
-    const unpacked = window._bringDocs.filter(x => !x.packed).length;
+    const unpacked = window._bringDocs.filter(x => !x.packed && !x.deleted).length;
     const dot = document.getElementById('bringDot');
     if (dot) dot.style.display = unpacked > 0 ? 'block' : 'none';
-    // Status bar
+    
     setFbStatus('bring', 'live');
   }, (err) => { console.error(err); setFbStatus('bring', 'offline'); });
 
   // ── LEDGER listener ─────────────────────────────────────────
+  let ledgerInitialLoad = true;
   const ledgerQ = query(collection(db, 'ledger'), orderBy('createdAt', 'desc'));
   onSnapshot(ledgerQ, (snap) => {
-    window._ledgerDocs = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(x => !x.deleted);
+    const newDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Notification check
+    if (!ledgerInitialLoad && window._ledgerDocs && window._ledgerDocs.length > 0) {
+      const oldDocsMap = new Map(window._ledgerDocs.map(d => [d.id, d]));
+      newDocs.forEach(newDoc => {
+        const actorId = newDoc.addedBy || newDoc.modifiedBy || 'user';
+        const actorName = window.t ? window.t('user_' + actorId) : actorId;
+        const curUser = window.appConfig?.user || 'maciek';
+
+        if (!oldDocsMap.has(newDoc.id)) {
+          // Newly added expense
+          if (newDoc.addedBy && newDoc.addedBy !== curUser && !newDoc.deleted) {
+            window.triggerNotification && window.triggerNotification(window.t('notif_added_ledger', actorName, newDoc.desc));
+          }
+        } else {
+          const oldDoc = oldDocsMap.get(newDoc.id);
+          // Check if deleted changed to true
+          if (newDoc.deleted && !oldDoc.deleted) {
+            if (newDoc.modifiedBy && newDoc.modifiedBy !== curUser) {
+              window.triggerNotification && window.triggerNotification(window.t('notif_deleted_ledger', actorName, newDoc.desc));
+            }
+          }
+          // Check if settled changed to true
+          else if (newDoc.settled && !oldDoc.settled && !newDoc.deleted) {
+            if (newDoc.modifiedBy && newDoc.modifiedBy !== curUser) {
+              window.triggerNotification && window.triggerNotification(window.t('notif_settled_ledger', actorName, newDoc.desc));
+            }
+          }
+        }
+      });
+    }
+
+    window._ledgerDocs = newDocs; // Keep unfiltered so we can detect deletion!
+    ledgerInitialLoad = false;
     window.renderLedger && window.renderLedger();
     setFbStatus('ledger', 'live');
   }, (err) => { console.error(err); setFbStatus('ledger', 'offline'); });
@@ -1785,7 +1954,6 @@ window.DAD_CONFIG = {
     const status = document.getElementById(view + 'FbStatus');
     if (!dot || !status) return;
     dot.className = 'fb-dot ' + state;
-    // Use t() from global scope
     const label = state === 'live'
       ? (window.t ? window.t('fb_live') : 'LIVE')
       : (window.t ? window.t('fb_offline') : 'OFFLINE');
@@ -1801,6 +1969,16 @@ window.DAD_CONFIG = {
 // ═══════════════════════════════════════════════════════════
 const I18N = {
   fr: {
+    user_dad: 'Papa',
+    user_maciek: 'Maciek',
+    user_user: 'Quelqu\'un',
+    notif_added_bring: (u, txt) => `${u} a ajouté "${txt}" à la liste Bring`,
+    notif_deleted_bring: (u, txt) => `${u} a supprimé "${txt}" de la liste Bring`,
+    notif_packed_bring: (u, txt, pk) => `${u} a marqué "${txt}" comme ${pk ? 'complété' : 'non complété'}`,
+    notif_added_ledger: (u, desc) => `${u} a ajouté la dépense : "${desc}"`,
+    notif_deleted_ledger: (u, desc) => `${u} a supprimé "${desc}" du grand livre`,
+    notif_settled_ledger: (u, desc) => `${u} a réglé la dépense : "${desc}"`,
+
     nav_notes: 'NOTES',
     nav_today: "AUJOURD'HUI",
     nav_stores: 'MAGASINS',
@@ -1945,6 +2123,16 @@ const I18N = {
     settings_zoom_label: 'ZOOM',
   },
   pl: {
+    user_dad: 'Tata',
+    user_maciek: 'Maciek',
+    user_user: 'Ktoś',
+    notif_added_bring: (u, txt) => `${u} dodał(a) "${txt}" do listy zakupów`,
+    notif_deleted_bring: (u, txt) => `${u} usunął(ęła) "${txt}" z listy zakupów`,
+    notif_packed_bring: (u, txt, pk) => `${u} oznaczył(a) "${txt}" jako ${pk ? 'kupione' : 'do kupienia'}`,
+    notif_added_ledger: (u, desc) => `${u} dodał(a) wydatek: "${desc}"`,
+    notif_deleted_ledger: (u, desc) => `${u} usunął(ęła) wydatek: "${desc}"`,
+    notif_settled_ledger: (u, desc) => `${u} rozliczył(a) wydatek: "${desc}"`,
+
     nav_notes: 'NOTATKI',
     nav_today: 'DZISIAJ',
     nav_stores: 'SKLEPY',
@@ -2090,6 +2278,16 @@ const I18N = {
     settings_zoom_label: 'ZOOM',
   },
   en: {
+    user_dad: 'Dad',
+    user_maciek: 'Maciek',
+    user_user: 'Someone',
+    notif_added_bring: (u, txt) => `${u} added "${txt}" to the Bring list`,
+    notif_deleted_bring: (u, txt) => `${u} deleted "${txt}" from the Bring list`,
+    notif_packed_bring: (u, txt, pk) => `${u} marked "${txt}" as ${pk ? 'packed' : 'unpacked'}`,
+    notif_added_ledger: (u, desc) => `${u} added expense: "${desc}"`,
+    notif_deleted_ledger: (u, desc) => `${u} deleted "${desc}" from the Ledger`,
+    notif_settled_ledger: (u, desc) => `${u} settled expense: "${desc}"`,
+
     nav_notes: 'NOTES',
     nav_today: 'TODAY',
     nav_stores: 'STORES',
@@ -2239,9 +2437,10 @@ const I18N = {
 // ── APP CONFIG (persistent, Capacitor-bridgeable) ────────────
 const appConfig = {
   theme:   localStorage.getItem('dadapp_theme')   || 'default',
-  bigMode: JSON.parse(localStorage.getItem('dadapp_bigMode') ?? 'false'),
+  bigMode: localStorage.getItem('dadapp_bigMode') || '0', // '0', '1', '2'
   user:    localStorage.getItem('dadapp_user') || 'maciek',
 };
+window.appConfig = appConfig;
 
 const THEMES = ['default', 'warm', 'bw'];
 
@@ -3459,17 +3658,7 @@ const favoriteStores = [
     phone: '+14504979992',
     keywords: ['sami', 'sami fruit', 'sami fruits'],
   },
-  {
-    id: 'pharmaprix_stjérome',
-    name: 'Pharmaprix',
-    emoji: '💊',
-    address: '900 Bd Grignon, Saint-Jérôme',
-    placeId: 'ChIJi7PmJ_Msz0wRMgAxQDyDFKQ',
-    lat: 45.794007,
-    lng: -74.017879,
-    phone: '+14504381293',
-    keywords: ['pharmaprix', 'shoppers', 'pharmacie'],
-  },
+
   {
     id: 'dollarama_rawdon',
     name: 'Dollarama',
@@ -3982,16 +4171,23 @@ function onSettingUser(user) {
 
 // ── BIG MODE ─────────────────────────────────────────────────
 
-function applyBigMode(enabled) {
-  appConfig.bigMode = enabled;
-  localStorage.setItem('dadapp_bigMode', JSON.stringify(enabled));
-  document.documentElement.setAttribute('data-big', enabled ? '1' : '0');
-  syncSettingToNativeAndroid('bigMode', enabled);
+function applyBigMode(val) {
+  let szVal = '0';
+  if (val === true || val === 'true' || val === 1 || val === '1') szVal = '1';
+  else if (val === false || val === 'false' || val === 0 || val === '0') szVal = '0';
+  else szVal = String(val);
+
+  appConfig.bigMode = szVal;
+  localStorage.setItem('dadapp_bigMode', szVal);
+  document.documentElement.setAttribute('data-big', szVal);
+  syncSettingToNativeAndroid('bigMode', szVal);
 }
 
-function onSettingBigMode(checkbox) {
-  applyBigMode(checkbox.checked);
-  showToast(t(checkbox.checked ? 'toast_bigmode_on' : 'toast_bigmode_off'));
+function onSettingSize(size) {
+  applyBigMode(size);
+  renderSettings();
+  const labelMap = { '0': 'NORMAL', '1': 'LARGE', '2': 'HUGE' };
+  showToast('SIZE: ' + labelMap[size]);
 }
 
 // ── RENDER SETTINGS TAB ──────────────────────────────────────
@@ -4020,9 +4216,16 @@ function renderSettings() {
     if (btn) btn.classList.toggle('active', (appConfig.theme || 'default') === theme);
   });
 
-  // Big mode toggle
-  const bigToggle = document.getElementById('settingBigMode');
-  if (bigToggle) bigToggle.checked = !!appConfig.bigMode;
+  // Size buttons
+  const curSize = appConfig.bigMode || '0';
+  ['0', '1', '2'].forEach(sz => {
+    const idMap = { '0': 'sizeNormal', '1': 'sizeLarge', '2': 'sizeHuge' };
+    const btn = document.getElementById(idMap[sz]);
+    if (!btn) return;
+    const active = String(curSize) === sz;
+    btn.style.background = active ? 'var(--black)' : 'var(--white)';
+    btn.style.color = active ? 'var(--yellow)' : 'var(--black)';
+  });
 }
 
 
@@ -4086,7 +4289,7 @@ async function bringAdd() {
       text,
       packed: false,
       createdAt: fb.serverTimestamp(),
-      addedBy: 'user'
+      addedBy: appConfig.user || 'maciek'
     });
     inp.value = '';
   } catch(e) { showToast('Error: ' + e.message); }
@@ -4099,7 +4302,10 @@ async function bringToggle(id) {
   const item = window._bringDocs.find(x => x.id === id);
   if (!item) return;
   try {
-    await fb.updateDoc(fb.doc(fb.db, 'bringlist', id), { packed: !item.packed });
+    await fb.updateDoc(fb.doc(fb.db, 'bringlist', id), { 
+      packed: !item.packed,
+      modifiedBy: appConfig.user || 'maciek'
+    });
   } catch(e) { console.error(e); }
 }
 window.bringToggle = bringToggle;
@@ -4109,7 +4315,11 @@ async function bringDelete(id) {
   if (!fb) return;
   try {
     // Soft delete: mark as deleted (Firestore free tier — avoid delete ops)
-    await fb.updateDoc(fb.doc(fb.db, 'bringlist', id), { deleted: true, packed: true });
+    await fb.updateDoc(fb.doc(fb.db, 'bringlist', id), { 
+      deleted: true, 
+      packed: true,
+      modifiedBy: appConfig.user || 'maciek'
+    });
     // Filter out from local cache immediately
     window._bringDocs = window._bringDocs.filter(x => x.id !== id || !x.deleted);
     window.renderBring();
@@ -4207,7 +4417,8 @@ async function ledgerAdd() {
       desc, amount, paidBy,
       settled: false,
       deleted: false,
-      createdAt: fb.serverTimestamp()
+      createdAt: fb.serverTimestamp(),
+      addedBy: appConfig.user || 'maciek'
     });
     document.getElementById('ledgerDesc').value   = '';
     document.getElementById('ledgerAmount').value = '';
@@ -4222,7 +4433,8 @@ async function ledgerSettle(id) {
   try {
     await fb.updateDoc(fb.doc(fb.db, 'ledger', id), {
       settled: true,
-      settledAt: new Date().toISOString()
+      settledAt: new Date().toISOString(),
+      modifiedBy: appConfig.user || 'maciek'
     });
     showToast('✓ SETTLED');
   } catch(e) { showToast('ERROR: ' + e.message); }
@@ -4233,7 +4445,10 @@ async function ledgerDelete(id) {
   const fb = window._fb;
   if (!fb) { showToast('NOT CONNECTED'); return; }
   try {
-    await fb.updateDoc(fb.doc(fb.db, 'ledger', id), { deleted: true });
+    await fb.updateDoc(fb.doc(fb.db, 'ledger', id), { 
+      deleted: true,
+      modifiedBy: appConfig.user || 'maciek'
+    });
     showToast('🗑️ DELETED');
   } catch(e) { showToast('ERROR: ' + e.message); }
 }
@@ -4243,143 +4458,7 @@ window.ledgerDelete = ledgerDelete;
 window.t = t;
 
 // ── PHASE 7 BOOT: apply persisted theme + big mode ──────────
-// ── CUBEACR IMPORT ───────────────────────────────────────────
 
-const CUBE_DB_NAME = 'dadapp_cube';
-const CUBE_DB_KEY  = 'dirHandle';
-const CUBE_SEEN_KEY = 'dadapp_cube_seen'; // localStorage: Set of already-imported filenames
-
-function cubeSetStatus(msg) {
-  const el = document.getElementById('cubeStatus');
-  if (el) el.textContent = msg;
-}
-
-// Open (or create) a tiny IndexedDB to persist the directory handle
-function cubeOpenDB() {
-  return new Promise((res, rej) => {
-    const req = indexedDB.open(CUBE_DB_NAME, 1);
-    req.onupgradeneeded = e => e.target.result.createObjectStore('handles');
-    req.onsuccess = e => res(e.target.result);
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-
-async function cubeSaveHandle(handle) {
-  const db = await cubeOpenDB();
-  return new Promise((res, rej) => {
-    const tx = db.transaction('handles', 'readwrite');
-    tx.objectStore('handles').put(handle, CUBE_DB_KEY);
-    tx.oncomplete = res;
-    tx.onerror    = e => rej(e.target.error);
-  });
-}
-
-async function cubeLoadHandle() {
-  const db = await cubeOpenDB();
-  return new Promise((res, rej) => {
-    const tx = db.transaction('handles', 'readonly');
-    const req = tx.objectStore('handles').get(CUBE_DB_KEY);
-    req.onsuccess = e => res(e.target.result || null);
-    req.onerror   = e => rej(e.target.error);
-  });
-}
-
-async function cubePickFolder() {
-  if (!window.showDirectoryPicker) {
-    showToast('NOT SUPPORTED IN THIS BROWSER');
-    return;
-  }
-  try {
-    const handle = await window.showDirectoryPicker({ mode: 'read' });
-    await cubeSaveHandle(handle);
-    cubeSetStatus('✓ Folder saved: ' + handle.name);
-    showToast('FOLDER SAVED — TAP IMPORT');
-  } catch(e) {
-    if (e.name !== 'AbortError') cubeSetStatus('Error: ' + e.message);
-  }
-}
-
-async function cubeImport() {
-  if (!window.showDirectoryPicker) {
-    showToast('NOT SUPPORTED IN THIS BROWSER');
-    return;
-  }
-  let handle;
-  try {
-    handle = await cubeLoadHandle();
-  } catch(e) { /* ignore */ }
-
-  if (!handle) {
-    showToast('PICK A FOLDER FIRST');
-    return;
-  }
-
-  // Re-verify permission (required after page reload)
-  try {
-    const perm = await handle.requestPermission({ mode: 'read' });
-    if (perm !== 'granted') { cubeSetStatus('Permission denied'); return; }
-  } catch(e) { cubeSetStatus('Permission error: ' + e.message); return; }
-
-  const seen = new Set(JSON.parse(localStorage.getItem(CUBE_SEEN_KEY) || '[]'));
-  const audioExts = ['.m4a', '.mp3', '.aac', '.ogg', '.wav', '.opus', '.webm'];
-  let imported = 0;
-
-  cubeSetStatus('Scanning...');
-  try {
-    for await (const [name, fileHandle] of handle.entries()) {
-      if (fileHandle.kind !== 'file') continue;
-      const lower = name.toLowerCase();
-      if (!audioExts.some(ext => lower.endsWith(ext))) continue;
-      if (seen.has(name)) continue;
-
-      const file = await fileHandle.getFile();
-      const dataUrl = await new Promise((res, rej) => {
-        const r = new FileReader();
-        r.onload = () => res(r.result);
-        r.onerror = rej;
-        r.readAsDataURL(file);
-      });
-
-      const now = new Date(file.lastModified || Date.now());
-      const dateStr = now.toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }).toUpperCase();
-      const timeStr = now.toLocaleTimeString('en-CA', { hour:'2-digit', minute:'2-digit' });
-
-      state.notes.unshift({
-        id: Date.now() + imported,
-        title: `📞 ${name.replace(/\.[^.]+$/,'')}`,
-        body: `[CubeACR recording · ${dateStr} ${timeStr}]`,
-        audioUrl:  dataUrl,
-        audioWebm: dataUrl,
-        done: false,
-        lang: uiLang,
-        date: dateStr,
-        cubeFile: name,
-      });
-
-      seen.add(name);
-      imported++;
-    }
-  } catch(e) {
-    cubeSetStatus('Scan error: ' + e.message);
-    return;
-  }
-
-  if (imported > 0) {
-    localStorage.setItem(CUBE_SEEN_KEY, JSON.stringify([...seen]));
-    save();
-    renderNotes();
-    cubeSetStatus(`✓ ${imported} recording${imported > 1 ? 's' : ''} imported`);
-    showToast(`✓ ${imported} RECORDING${imported > 1 ? 'S' : ''} IMPORTED`);
-    // Switch to notes tab to show them
-    switchView('notes', document.querySelector('[data-view="notes"]'));
-  } else {
-    cubeSetStatus('No new recordings found');
-    showToast('NO NEW RECORDINGS');
-  }
-}
-
-window.cubePickFolder = cubePickFolder;
-window.cubeImport     = cubeImport;
 
 applyTheme(appConfig.theme);
 applyBigMode(appConfig.bigMode);
